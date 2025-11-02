@@ -39,7 +39,6 @@ pub enum WrapType {
 #[derive(Debug, Clone)]
 pub struct VisualLine {
     pub byte_range: Range<usize>,
-    pub width: Pixels,
     pub wrap_type: WrapType,
 }
 
@@ -130,7 +129,8 @@ impl TextBuffer {
 
             for (i, new_line) in new_lines.iter().enumerate().skip(1) {
                 if i == new_lines.len() - 1 {
-                    self.lines.insert(pos.row + i, new_line.to_string() + &after);
+                    self.lines
+                        .insert(pos.row + i, new_line.to_string() + &after);
                 } else {
                     self.lines.insert(pos.row + i, new_line.to_string());
                 }
@@ -193,11 +193,12 @@ impl TextBuffer {
             return;
         }
 
-        let (start, end) = if start.row > end.row || (start.row == end.row && start.column > end.column) {
-            (end, start)
-        } else {
-            (start, end)
-        };
+        let (start, end) =
+            if start.row > end.row || (start.row == end.row && start.column > end.column) {
+                (end, start)
+            } else {
+                (start, end)
+            };
 
         if start.row == end.row {
             let line = &self.lines[start.row];
@@ -220,13 +221,6 @@ impl TextBuffer {
         }
     }
 
-    pub fn clamp_position(&self, pos: BufferPosition) -> BufferPosition {
-        let row = pos.row.min(self.lines.len().saturating_sub(1));
-        let line_len = self.lines.get(row).map(|s| s.len()).unwrap_or(0);
-        let column = pos.column.min(line_len);
-        BufferPosition::new(row, column)
-    }
-
     pub fn position_to_byte_offset(&self, pos: BufferPosition) -> usize {
         let mut offset = 0;
         for row in 0..pos.row.min(self.lines.len()) {
@@ -236,18 +230,6 @@ impl TextBuffer {
             offset += pos.column.min(self.lines[pos.row].len());
         }
         offset
-    }
-
-    pub fn byte_offset_to_position(&self, mut offset: usize) -> BufferPosition {
-        for (row, line) in self.lines.iter().enumerate() {
-            if offset <= line.len() {
-                return BufferPosition::new(row, offset);
-            }
-            offset = offset.saturating_sub(line.len() + 1);
-        }
-        let last_row = self.lines.len().saturating_sub(1);
-        let last_col = self.lines.get(last_row).map(|s| s.len()).unwrap_or(0);
-        BufferPosition::new(last_row, last_col)
     }
 
     fn invalidate_layout(&mut self, row: usize) {
@@ -273,9 +255,9 @@ impl TextBuffer {
             return None;
         }
 
-        let needs_reshaping = self.line_layouts[row]
-            .as_ref()
-            .map_or(true, |cached| cached.font_size != font_size || cached.wrap_width != wrap_width);
+        let needs_reshaping = self.line_layouts[row].as_ref().map_or(true, |cached| {
+            cached.font_size != font_size || cached.wrap_width != wrap_width
+        });
 
         if needs_reshaping {
             let line = &self.lines[row];
@@ -307,14 +289,20 @@ impl TextBuffer {
             });
         }
 
-        self.line_layouts[row].as_ref().map(|cached| &cached.shaped_line)
+        self.line_layouts[row]
+            .as_ref()
+            .map(|cached| &cached.shaped_line)
     }
 
-    fn compute_visual_lines(&self, line: &str, shaped: &ShapedLine, wrap_width: Pixels) -> Vec<VisualLine> {
+    fn compute_visual_lines(
+        &self,
+        line: &str,
+        shaped: &ShapedLine,
+        wrap_width: Pixels,
+    ) -> Vec<VisualLine> {
         if line.is_empty() {
             return vec![VisualLine {
                 byte_range: 0..0,
-                width: px(0.0),
                 wrap_type: WrapType::SoftWrap,
             }];
         }
@@ -322,7 +310,6 @@ impl TextBuffer {
         let mut visual_lines = Vec::new();
         let mut current_start = 0;
         let mut last_word_boundary = None;
-        let mut last_word_boundary_width = px(0.0);
 
         let chars: Vec<(usize, char)> = line.char_indices().collect();
 
@@ -335,7 +322,6 @@ impl TextBuffer {
 
             if ch.is_whitespace() {
                 last_word_boundary = Some(next_byte_idx);
-                last_word_boundary_width = x_pos_absolute;
             }
 
             if x_pos_relative > wrap_width {
@@ -343,22 +329,27 @@ impl TextBuffer {
                     if boundary > current_start {
                         visual_lines.push(VisualLine {
                             byte_range: current_start..boundary,
-                            width: last_word_boundary_width - shaped.x_for_index(current_start),
                             wrap_type: WrapType::SoftWrap,
                         });
                         current_start = boundary;
-                        while current_start < line.len() && line.as_bytes()[current_start].is_ascii_whitespace() {
+                        while current_start < line.len()
+                            && line.as_bytes()[current_start].is_ascii_whitespace()
+                        {
                             current_start += 1;
                         }
                         last_word_boundary = None;
-                        last_word_boundary_width = px(0.0);
                         continue;
                     }
                 }
 
                 if byte_idx > current_start {
                     let word = &line[current_start..next_byte_idx];
-                    if let Some(hyphenated_segments) = self.try_hyphenate_word(word, wrap_width - shaped.x_for_index(current_start), shaped, current_start) {
+                    if let Some(hyphenated_segments) = self.try_hyphenate_word(
+                        word,
+                        wrap_width - shaped.x_for_index(current_start),
+                        shaped,
+                        current_start,
+                    ) {
                         for segment in hyphenated_segments {
                             visual_lines.push(segment);
                         }
@@ -366,21 +357,18 @@ impl TextBuffer {
                     } else {
                         visual_lines.push(VisualLine {
                             byte_range: current_start..byte_idx,
-                            width: shaped.x_for_index(byte_idx) - shaped.x_for_index(current_start),
                             wrap_type: WrapType::HardWrap,
                         });
                         current_start = byte_idx;
                     }
                 }
                 last_word_boundary = None;
-                last_word_boundary_width = px(0.0);
             }
         }
 
         if current_start < line.len() {
             visual_lines.push(VisualLine {
                 byte_range: current_start..line.len(),
-                width: shaped.x_for_index(line.len()) - shaped.x_for_index(current_start),
                 wrap_type: WrapType::SoftWrap,
             });
         }
@@ -388,7 +376,6 @@ impl TextBuffer {
         if visual_lines.is_empty() {
             visual_lines.push(VisualLine {
                 byte_range: 0..line.len(),
-                width: shaped.x_for_index(line.len()),
                 wrap_type: WrapType::SoftWrap,
             });
         }
@@ -396,18 +383,28 @@ impl TextBuffer {
         visual_lines
     }
 
-    fn try_hyphenate_word(&self, _word: &str, _available_width: Pixels, _shaped: &ShapedLine, _start_byte: usize) -> Option<Vec<VisualLine>> {
+    fn try_hyphenate_word(
+        &self,
+        _word: &str,
+        _available_width: Pixels,
+        _shaped: &ShapedLine,
+        _start_byte: usize,
+    ) -> Option<Vec<VisualLine>> {
         // Hyphenation disabled for now - would require loading dictionary data
         // Future enhancement: implement proper hyphenation with embedded dictionary
         None
     }
 
     pub fn get_visual_lines(&self, row: usize) -> Option<&Vec<VisualLine>> {
-        self.line_layouts.get(row)?.as_ref().map(|layout| &layout.visual_lines)
+        self.line_layouts
+            .get(row)?
+            .as_ref()
+            .map(|layout| &layout.visual_lines)
     }
 
     pub fn visual_line_count(&self) -> usize {
-        self.line_layouts.iter()
+        self.line_layouts
+            .iter()
             .filter_map(|layout| layout.as_ref())
             .map(|layout| layout.visual_lines.len())
             .sum()
@@ -426,13 +423,17 @@ impl TextBuffer {
 
         if let Some(visual_lines) = self.get_visual_lines(buffer_pos.row) {
             for (visual_line_idx, visual_line) in visual_lines.iter().enumerate() {
-                if buffer_pos.column >= visual_line.byte_range.start && buffer_pos.column < visual_line.byte_range.end {
+                if buffer_pos.column >= visual_line.byte_range.start
+                    && buffer_pos.column < visual_line.byte_range.end
+                {
                     return VisualPosition::new(
                         visual_row + visual_line_idx,
                         buffer_pos.column - visual_line.byte_range.start,
                     );
                 }
-                if buffer_pos.column == visual_line.byte_range.end && visual_line_idx == visual_lines.len() - 1 {
+                if buffer_pos.column == visual_line.byte_range.end
+                    && visual_line_idx == visual_lines.len() - 1
+                {
                     return VisualPosition::new(
                         visual_row + visual_line_idx,
                         buffer_pos.column - visual_line.byte_range.start,
@@ -451,14 +452,18 @@ impl TextBuffer {
             if let Some(visual_lines) = self.get_visual_lines(buffer_row) {
                 for (_visual_line_idx, visual_line) in visual_lines.iter().enumerate() {
                     if visual_row_counter == visual_pos.visual_row {
-                        let buffer_column = visual_line.byte_range.start + visual_pos.column.min(visual_line.byte_range.len());
+                        let buffer_column = visual_line.byte_range.start
+                            + visual_pos.column.min(visual_line.byte_range.len());
                         return BufferPosition::new(buffer_row, buffer_column);
                     }
                     visual_row_counter += 1;
                 }
             } else {
                 if visual_row_counter == visual_pos.visual_row {
-                    return BufferPosition::new(buffer_row, visual_pos.column.min(self.line_len(buffer_row)));
+                    return BufferPosition::new(
+                        buffer_row,
+                        visual_pos.column.min(self.line_len(buffer_row)),
+                    );
                 }
                 visual_row_counter += 1;
             }
@@ -469,10 +474,15 @@ impl TextBuffer {
         BufferPosition::new(last_row, last_col)
     }
 
-    pub fn get_visual_line_at_position(&self, buffer_pos: BufferPosition) -> Option<(usize, &VisualLine)> {
+    pub fn get_visual_line_at_position(
+        &self,
+        buffer_pos: BufferPosition,
+    ) -> Option<(usize, &VisualLine)> {
         if let Some(visual_lines) = self.get_visual_lines(buffer_pos.row) {
             for (idx, visual_line) in visual_lines.iter().enumerate() {
-                if buffer_pos.column >= visual_line.byte_range.start && buffer_pos.column <= visual_line.byte_range.end {
+                if buffer_pos.column >= visual_line.byte_range.start
+                    && buffer_pos.column <= visual_line.byte_range.end
+                {
                     return Some((idx, visual_line));
                 }
             }

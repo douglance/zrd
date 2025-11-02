@@ -1,6 +1,6 @@
 use crate::actions::*;
 use crate::text_buffer::{BufferPosition, TextBuffer, WrapType};
-use crate::theme::AtomOneDark;
+use crate::theme::Theme;
 use gpui::prelude::*;
 use gpui::*;
 use std::time::{Duration, Instant};
@@ -18,7 +18,7 @@ pub struct TextEditor {
     cursor: BufferPosition,
     selection_anchor: Option<BufferPosition>,
     focus_handle: FocusHandle,
-    theme: AtomOneDark,
+    theme: Theme,
     is_dragging: bool,
     undo_stack: Vec<EditorState>,
     redo_stack: Vec<EditorState>,
@@ -35,7 +35,7 @@ impl TextEditor {
             cursor: BufferPosition::zero(),
             selection_anchor: None,
             focus_handle: cx.focus_handle(),
-            theme: AtomOneDark::default(),
+            theme: Theme::default(),
             is_dragging: false,
             undo_stack: Vec::new(),
             redo_stack: Vec::new(),
@@ -111,7 +111,9 @@ impl TextEditor {
 
     fn selection_range(&self) -> Option<(BufferPosition, BufferPosition)> {
         self.selection_anchor.map(|anchor| {
-            if anchor.row < self.cursor.row || (anchor.row == self.cursor.row && anchor.column < self.cursor.column) {
+            if anchor.row < self.cursor.row
+                || (anchor.row == self.cursor.row && anchor.column < self.cursor.column)
+            {
                 (anchor, self.cursor)
             } else {
                 (self.cursor, anchor)
@@ -123,13 +125,23 @@ impl TextEditor {
         self.selection_anchor = None;
     }
 
-    fn increase_font_size(&mut self, _: &IncreaseFontSize, _window: &mut Window, cx: &mut Context<Self>) {
+    fn increase_font_size(
+        &mut self,
+        _: &IncreaseFontSize,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.font_size = (self.font_size + 2.0).min(72.0);
         self.buffer.invalidate_all_layouts();
         cx.notify();
     }
 
-    fn decrease_font_size(&mut self, _: &DecreaseFontSize, _window: &mut Window, cx: &mut Context<Self>) {
+    fn decrease_font_size(
+        &mut self,
+        _: &DecreaseFontSize,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.font_size = (self.font_size - 2.0).max(8.0);
         self.buffer.invalidate_all_layouts();
         cx.notify();
@@ -186,7 +198,8 @@ impl TextEditor {
         }
 
         if let Some(current_line) = self.buffer.line(self.cursor.row) {
-            if let Some((pattern, pattern_len, is_empty)) = Self::detect_list_pattern(current_line) {
+            if let Some((pattern, pattern_len, is_empty)) = Self::detect_list_pattern(current_line)
+            {
                 if is_empty {
                     let line_start = BufferPosition::new(self.cursor.row, 0);
                     let line_end = BufferPosition::new(self.cursor.row, pattern_len);
@@ -245,7 +258,12 @@ impl TextEditor {
         cx.notify();
     }
 
-    fn delete_to_beginning_of_line(&mut self, _: &DeleteToBeginningOfLine, _window: &mut Window, cx: &mut Context<Self>) {
+    fn delete_to_beginning_of_line(
+        &mut self,
+        _: &DeleteToBeginningOfLine,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.push_undo_state();
         self.last_edit_time = None;
         let start = BufferPosition::new(self.cursor.row, 0);
@@ -254,7 +272,12 @@ impl TextEditor {
         cx.notify();
     }
 
-    fn delete_to_end_of_line(&mut self, _: &DeleteToEndOfLine, _window: &mut Window, cx: &mut Context<Self>) {
+    fn delete_to_end_of_line(
+        &mut self,
+        _: &DeleteToEndOfLine,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.push_undo_state();
         self.last_edit_time = None;
         let line_len = self.buffer.line_len(self.cursor.row);
@@ -263,13 +286,23 @@ impl TextEditor {
         cx.notify();
     }
 
-    fn move_to_beginning_of_line(&mut self, _: &MoveToBeginningOfLine, _window: &mut Window, cx: &mut Context<Self>) {
+    fn move_to_beginning_of_line(
+        &mut self,
+        _: &MoveToBeginningOfLine,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.clear_selection();
         self.cursor = self.buffer.visual_line_start(self.cursor);
         cx.notify();
     }
 
-    fn move_to_end_of_line(&mut self, _: &MoveToEndOfLine, _window: &mut Window, cx: &mut Context<Self>) {
+    fn move_to_end_of_line(
+        &mut self,
+        _: &MoveToEndOfLine,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.clear_selection();
         self.cursor = self.buffer.visual_line_end(self.cursor);
         cx.notify();
@@ -297,7 +330,8 @@ impl TextEditor {
         if self.cursor.column < line_len {
             self.cursor.column += 1;
             if let Some(line) = self.buffer.line(self.cursor.row) {
-                while self.cursor.column < line.len() && !line.is_char_boundary(self.cursor.column) {
+                while self.cursor.column < line.len() && !line.is_char_boundary(self.cursor.column)
+                {
                     self.cursor.column += 1;
                 }
             }
@@ -428,8 +462,12 @@ impl TextEditor {
         self.buffer.delete_range(start_current, end_current);
 
         self.buffer.insert_str(start_current, &current_line);
-        self.buffer.insert_char(BufferPosition::new(current_row - 1, current_line.len()), '\n');
-        self.buffer.insert_str(BufferPosition::new(current_row, 0), &prev_line);
+        self.buffer.insert_char(
+            BufferPosition::new(current_row - 1, current_line.len()),
+            '\n',
+        );
+        self.buffer
+            .insert_str(BufferPosition::new(current_row, 0), &prev_line);
 
         self.cursor.row -= 1;
         cx.notify();
@@ -457,8 +495,10 @@ impl TextEditor {
         self.buffer.delete_range(start_next, end_next);
 
         self.buffer.insert_str(start_next, &next_line);
-        self.buffer.insert_char(BufferPosition::new(current_row, next_line.len()), '\n');
-        self.buffer.insert_str(BufferPosition::new(current_row + 1, 0), &current_line);
+        self.buffer
+            .insert_char(BufferPosition::new(current_row, next_line.len()), '\n');
+        self.buffer
+            .insert_str(BufferPosition::new(current_row + 1, 0), &current_line);
 
         self.cursor.row += 1;
         cx.notify();
@@ -478,7 +518,10 @@ impl TextEditor {
         if current_row < self.buffer.line_count() {
             self.buffer.delete_char(start);
         } else if current_row > 0 {
-            self.buffer.delete_char(BufferPosition::new(current_row - 1, self.buffer.line_len(current_row - 1)));
+            self.buffer.delete_char(BufferPosition::new(
+                current_row - 1,
+                self.buffer.line_len(current_row - 1),
+            ));
             self.cursor.row -= 1;
         }
 
@@ -569,7 +612,8 @@ impl TextEditor {
         if self.cursor.column < line_len {
             self.cursor.column += 1;
             if let Some(line) = self.buffer.line(self.cursor.row) {
-                while self.cursor.column < line.len() && !line.is_char_boundary(self.cursor.column) {
+                while self.cursor.column < line.len() && !line.is_char_boundary(self.cursor.column)
+                {
                     self.cursor.column += 1;
                 }
             }
@@ -742,7 +786,8 @@ impl TextEditor {
                 let newline_count = text.matches('\n').count();
                 if newline_count > 0 {
                     let last_line = text.split('\n').last().unwrap_or("");
-                    self.cursor = BufferPosition::new(self.cursor.row + newline_count, last_line.len());
+                    self.cursor =
+                        BufferPosition::new(self.cursor.row + newline_count, last_line.len());
                 } else {
                     self.cursor.column += text.len();
                 }
@@ -752,7 +797,12 @@ impl TextEditor {
         }
     }
 
-    fn position_from_mouse(&mut self, mouse_position: Point<Pixels>, window: &mut Window, wrap_width: Pixels) -> BufferPosition {
+    fn position_from_mouse(
+        &mut self,
+        mouse_position: Point<Pixels>,
+        window: &mut Window,
+        wrap_width: Pixels,
+    ) -> BufferPosition {
         let line_height_px = px(self.font_size * 1.5);
         let padding_top = px(40.0);
         let padding_left = px(16.0);
@@ -774,21 +824,32 @@ impl TextEditor {
         let font_size_px = px(self.font_size);
 
         for buffer_row in 0..self.buffer.line_count() {
-            self.buffer.get_or_shape_line(buffer_row, font_size_px, wrap_width, &text_system);
+            self.buffer
+                .get_or_shape_line(buffer_row, font_size_px, wrap_width, &text_system);
         }
 
         let mut visual_row_counter = 0;
         for buffer_row in 0..self.buffer.line_count() {
             if let Some(visual_lines) = self.buffer.get_visual_lines(buffer_row) {
-                let visual_lines_vec: Vec<_> = visual_lines.iter().map(|vl| (vl.byte_range.clone(), vl.wrap_type)).collect();
+                let visual_lines_vec: Vec<_> = visual_lines
+                    .iter()
+                    .map(|vl| (vl.byte_range.clone(), vl.wrap_type))
+                    .collect();
 
                 for (_idx, (byte_range, _wrap_type)) in visual_lines_vec.iter().enumerate() {
                     if visual_row_counter == visual_row {
-                        if let Some(layout) = self.buffer.get_or_shape_line(buffer_row, font_size_px, wrap_width, &text_system) {
+                        if let Some(layout) = self.buffer.get_or_shape_line(
+                            buffer_row,
+                            font_size_px,
+                            wrap_width,
+                            &text_system,
+                        ) {
                             let full_line_x = layout.x_for_index(byte_range.start);
                             let relative_segment_x = relative_x + full_line_x;
-                            let column_in_full_line = layout.closest_index_for_x(relative_segment_x);
-                            let clamped_column = column_in_full_line.clamp(byte_range.start, byte_range.end);
+                            let column_in_full_line =
+                                layout.closest_index_for_x(relative_segment_x);
+                            let clamped_column =
+                                column_in_full_line.clamp(byte_range.start, byte_range.end);
                             return BufferPosition::new(buffer_row, clamped_column);
                         }
                     }
@@ -796,7 +857,12 @@ impl TextEditor {
                 }
             } else {
                 if visual_row_counter == visual_row {
-                    if let Some(layout) = self.buffer.get_or_shape_line(buffer_row, font_size_px, wrap_width, &text_system) {
+                    if let Some(layout) = self.buffer.get_or_shape_line(
+                        buffer_row,
+                        font_size_px,
+                        wrap_width,
+                        &text_system,
+                    ) {
                         let column = layout.closest_index_for_x(relative_x);
                         return BufferPosition::new(buffer_row, column);
                     }
@@ -810,7 +876,10 @@ impl TextEditor {
         BufferPosition::new(last_row, last_col)
     }
 
-    fn find_word_boundaries(&self, pos: BufferPosition) -> Option<(BufferPosition, BufferPosition)> {
+    fn find_word_boundaries(
+        &self,
+        pos: BufferPosition,
+    ) -> Option<(BufferPosition, BufferPosition)> {
         let line = self.buffer.line(pos.row)?;
         if line.is_empty() || pos.column >= line.len() {
             return None;
@@ -872,7 +941,12 @@ impl TextEditor {
         ))
     }
 
-    fn handle_mouse_down(&mut self, event: &MouseDownEvent, window: &mut Window, cx: &mut Context<Self>) {
+    fn handle_mouse_down(
+        &mut self,
+        event: &MouseDownEvent,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         const DOUBLE_CLICK_DURATION: Duration = Duration::from_millis(500);
 
         let window_size = window.viewport_size();
@@ -880,7 +954,9 @@ impl TextEditor {
         let position = self.position_from_mouse(event.position, window, wrap_width);
 
         let now = Instant::now();
-        let is_double_click = if let (Some(last_time), Some(last_pos)) = (self.last_click_time, self.last_click_position) {
+        let is_double_click = if let (Some(last_time), Some(last_pos)) =
+            (self.last_click_time, self.last_click_position)
+        {
             now.duration_since(last_time) < DOUBLE_CLICK_DURATION && last_pos == position
         } else {
             false
@@ -909,7 +985,12 @@ impl TextEditor {
         cx.notify();
     }
 
-    fn handle_mouse_move(&mut self, event: &MouseMoveEvent, window: &mut Window, cx: &mut Context<Self>) {
+    fn handle_mouse_move(
+        &mut self,
+        event: &MouseMoveEvent,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.is_dragging {
             let window_size = window.viewport_size();
             let wrap_width = window_size.width - px(32.0);
@@ -919,7 +1000,12 @@ impl TextEditor {
         }
     }
 
-    fn handle_mouse_up(&mut self, _event: &MouseUpEvent, _window: &mut Window, cx: &mut Context<Self>) {
+    fn handle_mouse_up(
+        &mut self,
+        _event: &MouseUpEvent,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.is_dragging = false;
         if let Some(anchor) = self.selection_anchor {
             if anchor == self.cursor {
@@ -929,11 +1015,17 @@ impl TextEditor {
         cx.notify();
     }
 
-    fn handle_key_down(&mut self, event: &KeyDownEvent, _window: &mut Window, cx: &mut Context<Self>) {
+    fn handle_key_down(
+        &mut self,
+        event: &KeyDownEvent,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(key_char) = &event.keystroke.key_char {
             if !event.keystroke.modifiers.platform
                 && !event.keystroke.modifiers.control
-                && !event.keystroke.modifiers.alt {
+                && !event.keystroke.modifiers.alt
+            {
                 self.push_undo_state();
                 self.mark_edit_time();
                 if let Some((start, end)) = self.selection_range() {
@@ -1023,7 +1115,7 @@ impl Render for TextEditor {
                                 .child(
                                     div()
                                         .text_color(self.theme.text_muted)
-                                        .child("Start typing...")
+                                        .child("Start typing..."),
                                 )
                                 .child(
                                     div()
@@ -1032,8 +1124,8 @@ impl Render for TextEditor {
                                         .top(px(0.0))
                                         .w(px(2.0))
                                         .h(font_size_px)
-                                        .bg(self.theme.cursor)
-                                )
+                                        .bg(self.theme.cursor),
+                                ),
                         )
                     })
                     .when(!is_empty, |parent| {
@@ -1044,12 +1136,22 @@ impl Render for TextEditor {
                         for row in 0..self.buffer.line_count() {
                             let line_text = self.buffer.line(row).unwrap_or("").to_string();
 
-                            self.buffer.get_or_shape_line(row, font_size_px, wrap_width, &text_system);
+                            self.buffer.get_or_shape_line(
+                                row,
+                                font_size_px,
+                                wrap_width,
+                                &text_system,
+                            );
 
                             if let Some(visual_lines) = self.buffer.get_visual_lines(row) {
-                                let visual_lines_vec: Vec<_> = visual_lines.iter().map(|vl| (vl.byte_range.clone(), vl.wrap_type)).collect();
+                                let visual_lines_vec: Vec<_> = visual_lines
+                                    .iter()
+                                    .map(|vl| (vl.byte_range.clone(), vl.wrap_type))
+                                    .collect();
 
-                                for (_visual_idx, (byte_range, wrap_type)) in visual_lines_vec.iter().enumerate() {
+                                for (_visual_idx, (byte_range, wrap_type)) in
+                                    visual_lines_vec.iter().enumerate()
+                                {
                                     let segment_text = &line_text[byte_range.clone()];
                                     let mut display_text = segment_text.to_string();
 
@@ -1066,24 +1168,44 @@ impl Render for TextEditor {
                                         .flex()
                                         .items_center()
                                         .whitespace_nowrap()
-                                        .child(StyledText::new(SharedString::from(display_text.clone())));
+                                        .child(StyledText::new(SharedString::from(
+                                            display_text.clone(),
+                                        )));
 
                                     if let Some((sel_start, sel_end)) = selection_range {
                                         if sel_start.row <= row && row <= sel_end.row {
                                             let seg_start = byte_range.start;
                                             let seg_end = byte_range.end;
 
-                                            let line_start_col = if sel_start.row == row { sel_start.column } else { 0 };
-                                            let line_end_col = if sel_end.row == row { sel_end.column } else { line_text.len() };
+                                            let line_start_col = if sel_start.row == row {
+                                                sel_start.column
+                                            } else {
+                                                0
+                                            };
+                                            let line_end_col = if sel_end.row == row {
+                                                sel_end.column
+                                            } else {
+                                                line_text.len()
+                                            };
 
                                             let sel_start_in_seg = line_start_col.max(seg_start);
                                             let sel_end_in_seg = line_end_col.min(seg_end);
 
                                             if sel_start_in_seg < sel_end_in_seg {
-                                                if let Some(shaped) = self.buffer.get_or_shape_line(row, font_size_px, wrap_width, &text_system) {
-                                                    let seg_x_offset = shaped.x_for_index(seg_start);
-                                                    let sel_x = shaped.x_for_index(sel_start_in_seg) - seg_x_offset;
-                                                    let sel_end_x = shaped.x_for_index(sel_end_in_seg) - seg_x_offset;
+                                                if let Some(shaped) = self.buffer.get_or_shape_line(
+                                                    row,
+                                                    font_size_px,
+                                                    wrap_width,
+                                                    &text_system,
+                                                ) {
+                                                    let seg_x_offset =
+                                                        shaped.x_for_index(seg_start);
+                                                    let sel_x = shaped
+                                                        .x_for_index(sel_start_in_seg)
+                                                        - seg_x_offset;
+                                                    let sel_end_x = shaped
+                                                        .x_for_index(sel_end_in_seg)
+                                                        - seg_x_offset;
                                                     let sel_width = sel_end_x - sel_x;
 
                                                     line_div = line_div.child(
@@ -1093,7 +1215,7 @@ impl Render for TextEditor {
                                                             .top(px(0.0))
                                                             .bottom(px(0.0))
                                                             .w(sel_width)
-                                                            .bg(self.theme.selection)
+                                                            .bg(self.theme.selection),
                                                     );
                                                 }
                                             }
@@ -1101,9 +1223,16 @@ impl Render for TextEditor {
                                     }
 
                                     if is_cursor_on_this_segment {
-                                        if let Some(shaped) = self.buffer.get_or_shape_line(row, font_size_px, wrap_width, &text_system) {
+                                        if let Some(shaped) = self.buffer.get_or_shape_line(
+                                            row,
+                                            font_size_px,
+                                            wrap_width,
+                                            &text_system,
+                                        ) {
                                             let seg_x_offset = shaped.x_for_index(byte_range.start);
-                                            let cursor_x = shaped.x_for_index(self.cursor.column.min(line_text.len())) - seg_x_offset;
+                                            let cursor_x = shaped.x_for_index(
+                                                self.cursor.column.min(line_text.len()),
+                                            ) - seg_x_offset;
 
                                             line_div = line_div.child(
                                                 div()
@@ -1112,7 +1241,7 @@ impl Render for TextEditor {
                                                     .top(px(0.0))
                                                     .bottom(px(0.0))
                                                     .w(px(2.0))
-                                                    .bg(self.theme.cursor)
+                                                    .bg(self.theme.cursor),
                                             );
                                         }
                                     }
@@ -1122,7 +1251,7 @@ impl Render for TextEditor {
                             }
                         }
                         container
-                    })
+                    }),
             )
     }
 }

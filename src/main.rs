@@ -47,8 +47,14 @@ fn main() {
 
         let window_options = WindowOptions {
             window_bounds: Some(WindowBounds::Windowed(Bounds {
-                origin: Point { x: px(100.0), y: px(100.0) },
-                size: Size { width: px(800.0), height: px(600.0) },
+                origin: Point {
+                    x: px(100.0),
+                    y: px(100.0),
+                },
+                size: Size {
+                    width: px(800.0),
+                    height: px(600.0),
+                },
             })),
             titlebar: Some(TitlebarOptions {
                 title: Some("Dright Editor".into()),
