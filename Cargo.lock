@@ -1325,13 +1325,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2"
 
 [[package]]
-name = "dright"
-version = "0.1.0"
-dependencies = [
- "gpui",
-]
-
-[[package]]
 name = "dtor"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6931,6 +6924,13 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.108",
+]
+
+[[package]]
+name = "zlyph"
+version = "0.1.0"
+dependencies = [
+ "gpui",
 ]
 
 [[package]]
