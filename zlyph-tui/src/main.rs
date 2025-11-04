@@ -55,6 +55,32 @@ impl TuiEditor {
         false
     }
 
+    fn render_cursor_line<'a>(&self, line: &'a str, cursor_col: usize, spans: &mut Vec<Span<'a>>, cursor_style: Style) {
+        if cursor_col == 0 {
+            // Cursor at start
+            if line.is_empty() {
+                spans.push(Span::styled(" ", cursor_style));
+            } else {
+                let cursor_char = line.chars().next().unwrap();
+                spans.push(Span::styled(cursor_char.to_string(), cursor_style));
+                spans.push(Span::raw(&line[cursor_char.len_utf8()..]));
+            }
+        } else if cursor_col >= line.len() {
+            // Cursor at end
+            spans.push(Span::raw(line));
+            spans.push(Span::styled(" ", cursor_style));
+        } else {
+            // Cursor in middle
+            let (before, rest) = line.split_at(cursor_col);
+            let cursor_char = rest.chars().next().unwrap();
+            let after = &rest[cursor_char.len_utf8()..];
+
+            spans.push(Span::raw(before));
+            spans.push(Span::styled(cursor_char.to_string(), cursor_style));
+            spans.push(Span::raw(after));
+        }
+    }
+
     fn run(&mut self) -> Result<()> {
         enable_raw_mode()?;
         let mut stdout = std::io::stdout();
@@ -108,6 +134,9 @@ impl TuiEditor {
     }
 
     fn translate_key_event(&self, event: KeyEvent) -> Option<EditorAction> {
+        // Debug: Uncomment to see what keys are being received
+        // eprintln!("Key: {:?}, Mods: {:?}", event.code, event.modifiers);
+
         match (event.code, event.modifiers) {
             // Ctrl+W to quit
             (KeyCode::Char('w'), KeyModifiers::CONTROL) => Some(EditorAction::Quit),
@@ -186,50 +215,93 @@ impl TuiEditor {
     fn render(&self, frame: &mut ratatui::Frame) {
         let state = self.engine.state();
 
-        // Build styled lines with cursor highlighting
+        // Selection highlighting style
+        let selection_style = Style::default().bg(Color::DarkGray);
+        let cursor_style = Style::default().add_modifier(Modifier::REVERSED);
+
+        // Build styled lines with cursor and selection highlighting
         let mut display_lines = Vec::new();
 
         for (row_idx, line) in state.lines.iter().enumerate() {
-            if row_idx == state.cursor.row {
-                // Current line with cursor
-                let cursor_col = state.cursor.column;
-                let mut spans = Vec::new();
+            let mut spans = Vec::new();
 
-                if cursor_col == 0 {
-                    // Cursor at start of line
-                    if line.is_empty() {
-                        spans.push(Span::styled(" ", Style::default().add_modifier(Modifier::REVERSED)));
+            if let Some(anchor) = state.selection_anchor {
+                // Calculate selection range
+                let (sel_start_row, sel_start_col, sel_end_row, sel_end_col) =
+                    if anchor.row < state.cursor.row || (anchor.row == state.cursor.row && anchor.column < state.cursor.column) {
+                        (anchor.row, anchor.column, state.cursor.row, state.cursor.column)
                     } else {
-                        let cursor_char = line.chars().next().unwrap_or(' ');
-                        spans.push(Span::styled(
-                            cursor_char.to_string(),
-                            Style::default().add_modifier(Modifier::REVERSED),
-                        ));
-                        spans.push(Span::raw(&line[cursor_char.len_utf8()..]));
+                        (state.cursor.row, state.cursor.column, anchor.row, anchor.column)
+                    };
+
+                if row_idx == state.cursor.row && row_idx >= sel_start_row && row_idx <= sel_end_row {
+                    // Line with cursor and possibly selection
+                    let (sel_from, sel_to) = if row_idx == sel_start_row && row_idx == sel_end_row {
+                        (sel_start_col, sel_end_col)
+                    } else if row_idx == sel_start_row {
+                        (sel_start_col, line.len())
+                    } else if row_idx == sel_end_row {
+                        (0, sel_end_col)
+                    } else {
+                        (0, line.len())
+                    };
+
+                    // Before selection
+                    if sel_from > 0 {
+                        spans.push(Span::raw(&line[..sel_from]));
                     }
-                } else if cursor_col >= line.len() {
-                    // Cursor at end of line
-                    spans.push(Span::raw(line.as_str()));
-                    spans.push(Span::styled(" ", Style::default().add_modifier(Modifier::REVERSED)));
+
+                    // Selected text
+                    if sel_to > sel_from {
+                        let sel_text = &line[sel_from..sel_to.min(line.len())];
+                        spans.push(Span::styled(sel_text, selection_style));
+                    }
+
+                    // After selection
+                    if sel_to < line.len() {
+                        spans.push(Span::raw(&line[sel_to..]));
+                    }
+
+                    // Cursor
+                    let cursor_col = state.cursor.column;
+                    if cursor_col >= line.len() {
+                        spans.push(Span::styled(" ", cursor_style));
+                    }
+                } else if row_idx >= sel_start_row && row_idx <= sel_end_row {
+                    // Line within selection range but not cursor line
+                    let (sel_from, sel_to) = if row_idx == sel_start_row {
+                        (sel_start_col, line.len())
+                    } else if row_idx == sel_end_row {
+                        (0, sel_end_col)
+                    } else {
+                        (0, line.len())
+                    };
+
+                    if sel_from > 0 {
+                        spans.push(Span::raw(&line[..sel_from]));
+                    }
+                    if sel_to > sel_from {
+                        spans.push(Span::styled(&line[sel_from..sel_to.min(line.len())], selection_style));
+                    }
+                    if sel_to < line.len() {
+                        spans.push(Span::raw(&line[sel_to..]));
+                    }
+                } else if row_idx == state.cursor.row {
+                    // Cursor line without selection
+                    self.render_cursor_line(line, state.cursor.column, &mut spans, cursor_style);
                 } else {
-                    // Cursor in middle of line
-                    let (before, rest) = line.split_at(cursor_col);
-                    let cursor_char = rest.chars().next().unwrap();
-                    let after = &rest[cursor_char.len_utf8()..];
-
-                    spans.push(Span::raw(before));
-                    spans.push(Span::styled(
-                        cursor_char.to_string(),
-                        Style::default().add_modifier(Modifier::REVERSED),
-                    ));
-                    spans.push(Span::raw(after));
+                    // Regular line
+                    spans.push(Span::raw(line.as_str()));
                 }
-
-                display_lines.push(Line::from(spans));
+            } else if row_idx == state.cursor.row {
+                // No selection, just cursor
+                self.render_cursor_line(line, state.cursor.column, &mut spans, cursor_style);
             } else {
-                // Other lines (no cursor)
-                display_lines.push(Line::from(line.as_str()));
+                // Regular line
+                spans.push(Span::raw(line.as_str()));
             }
+
+            display_lines.push(Line::from(spans));
         }
 
         let paragraph = Paragraph::new(display_lines)
