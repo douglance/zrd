@@ -1,0 +1,10 @@
+[package]
+name = "zlyph-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core editing logic for Zlyph text editor (platform-agnostic)"
+
+[dependencies]

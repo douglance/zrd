@@ -1,0 +1,18 @@
+[package]
+name = "zlyph-tui"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "A minimal text editor with terminal UI (ratatui)"
+
+[[bin]]
+name = "zlyph-tui"
+path = "src/main.rs"
+
+[dependencies]
+zlyph-core = { path = "../zlyph-core" }
+ratatui = "0.26"
+crossterm = "0.27"
+anyhow = "1.0"
