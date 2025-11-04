@@ -7,7 +7,8 @@ use crossterm::{
 use ratatui::{
     backend::CrosstermBackend,
     layout::Rect,
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
+    text::{Line, Span},
     widgets::Paragraph,
     Terminal,
 };
@@ -184,64 +185,53 @@ impl TuiEditor {
     fn render(&self, frame: &mut ratatui::Frame) {
         let state = self.engine.state();
 
-        // Build text with cursor indicator
+        // Build styled lines with cursor highlighting
         let mut display_lines = Vec::new();
 
         for (row_idx, line) in state.lines.iter().enumerate() {
             if row_idx == state.cursor.row {
-                // Insert cursor on current line
-                let (before, after) = if state.cursor.column <= line.len() {
-                    line.split_at(state.cursor.column)
-                } else {
-                    (line.as_str(), "")
-                };
+                // Current line with cursor
+                let cursor_col = state.cursor.column;
+                let mut spans = Vec::new();
 
-                // Show selection if present
-                let line_text = if let Some(anchor) = state.selection_anchor {
-                    // Simple selection visualization
-                    if anchor.row == row_idx && anchor.column != state.cursor.column {
-                        let (start_col, end_col) = if anchor.column < state.cursor.column {
-                            (anchor.column, state.cursor.column)
-                        } else {
-                            (state.cursor.column, anchor.column)
-                        };
-
-                        let before_sel = &line[..start_col];
-                        let selected = &line[start_col..end_col.min(line.len())];
-                        let after_sel = if end_col < line.len() { &line[end_col..] } else { "" };
-
-                        format!("{}[{}]{}", before_sel, selected, after_sel)
+                if cursor_col == 0 {
+                    // Cursor at start of line
+                    if line.is_empty() {
+                        spans.push(Span::styled(" ", Style::default().add_modifier(Modifier::REVERSED)));
                     } else {
-                        format!("{}█{}", before, after)
+                        let cursor_char = line.chars().next().unwrap_or(' ');
+                        spans.push(Span::styled(
+                            cursor_char.to_string(),
+                            Style::default().add_modifier(Modifier::REVERSED),
+                        ));
+                        spans.push(Span::raw(&line[cursor_char.len_utf8()..]));
                     }
+                } else if cursor_col >= line.len() {
+                    // Cursor at end of line
+                    spans.push(Span::raw(line.as_str()));
+                    spans.push(Span::styled(" ", Style::default().add_modifier(Modifier::REVERSED)));
                 } else {
-                    format!("{}█{}", before, after)
-                };
+                    // Cursor in middle of line
+                    let (before, rest) = line.split_at(cursor_col);
+                    let cursor_char = rest.chars().next().unwrap();
+                    let after = &rest[cursor_char.len_utf8()..];
 
-                display_lines.push(line_text);
-            } else {
-                // Show selection on other lines if present
-                if let Some(anchor) = state.selection_anchor {
-                    let (sel_start_row, sel_end_row) = if anchor.row < state.cursor.row {
-                        (anchor.row, state.cursor.row)
-                    } else {
-                        (state.cursor.row, anchor.row)
-                    };
-
-                    if row_idx >= sel_start_row && row_idx <= sel_end_row && sel_start_row != sel_end_row {
-                        display_lines.push(format!("[{}]", line));
-                    } else {
-                        display_lines.push(line.clone());
-                    }
-                } else {
-                    display_lines.push(line.clone());
+                    spans.push(Span::raw(before));
+                    spans.push(Span::styled(
+                        cursor_char.to_string(),
+                        Style::default().add_modifier(Modifier::REVERSED),
+                    ));
+                    spans.push(Span::raw(after));
                 }
+
+                display_lines.push(Line::from(spans));
+            } else {
+                // Other lines (no cursor)
+                display_lines.push(Line::from(line.as_str()));
             }
         }
 
-        let text = display_lines.join("\n");
-
-        let paragraph = Paragraph::new(text)
+        let paragraph = Paragraph::new(display_lines)
             .style(Style::default().fg(Color::White));
 
         // Create a rect with padding on all sides
