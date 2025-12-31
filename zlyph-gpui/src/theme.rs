@@ -12,10 +12,10 @@ pub struct Theme {
 impl Default for Theme {
     fn default() -> Self {
         Self {
-            background: hsla(0.59, 0.13, 0.20, 0.75),
+            background: hsla(0.61, 0.13, 0.18, 0.75),
             text: rgb(0xabb2bf).into(),
-            text_muted: hsla(0.59, 0.11, 0.55, 0.6),
-            selection: hsla(0.59, 0.13, 0.31, 0.7),
+            text_muted: hsla(0.61, 0.11, 0.44, 0.6),
+            selection: hsla(0.61, 0.13, 0.28, 0.7),
             cursor: rgb(0x528bff).into(),
         }
     }

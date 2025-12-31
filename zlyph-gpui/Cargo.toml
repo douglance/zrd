@@ -10,7 +10,7 @@ keywords = ["editor", "text-editor", "gpui"]
 categories = ["text-editors"]
 
 [[bin]]
-name = "zlyph"
+name = "zlyph-gui"
 path = "src/main.rs"
 
 [dependencies]

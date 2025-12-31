@@ -6,9 +6,32 @@ mod theme;
 use actions::*;
 use editor::TextEditor;
 use gpui::*;
+use std::path::PathBuf;
+use zlyph_core::EditorEngine;
+
+fn resolve_file_path() -> PathBuf {
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() > 1 {
+        // User provided a file path
+        let path = PathBuf::from(&args[1]);
+        if path.is_absolute() {
+            path
+        } else {
+            std::env::current_dir()
+                .unwrap_or_default()
+                .join(path)
+        }
+    } else {
+        // Use default global file
+        EditorEngine::default_file_path()
+    }
+}
 
 fn main() {
-    Application::new().run(|app| {
+    let file_path = resolve_file_path();
+
+    Application::new().run(move |app| {
         app.bind_keys([
             KeyBinding::new("cmd-=", IncreaseFontSize, None),
             KeyBinding::new("cmd--", DecreaseFontSize, None),
@@ -66,8 +89,11 @@ fn main() {
         };
 
         app.open_window(window_options, |_window, app| {
-            app.new(|cx| TextEditor::new(cx))
+            let path = file_path.clone();
+            app.new(|cx| TextEditor::new(path, cx))
         })
         .unwrap();
+
+        app.activate(true);
     });
 }

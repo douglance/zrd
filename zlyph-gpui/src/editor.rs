@@ -19,9 +19,13 @@ pub struct TextEditor {
 }
 
 impl TextEditor {
-    pub fn new(cx: &mut Context<Self>) -> Self {
+    pub fn new(file_path: std::path::PathBuf, cx: &mut Context<Self>) -> Self {
         let mut engine = EditorEngine::new();
-        let file_path = EditorEngine::default_file_path();
+
+        // Ensure parent directory exists
+        if let Some(parent) = file_path.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
 
         // Load existing file if it exists
         let last_modified = if file_path.exists() {
@@ -52,8 +56,7 @@ impl TextEditor {
     }
 
     fn save_to_file(&self) {
-        let file_path = EditorEngine::default_file_path();
-        let _ = self.engine.save_to_file(&file_path);
+        let _ = self.engine.save_to_file(&self.file_path);
     }
 
     fn sync_and_save(&mut self) {

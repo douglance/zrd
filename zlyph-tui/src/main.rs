@@ -22,9 +22,13 @@ struct TuiEditor {
 }
 
 impl TuiEditor {
-    fn new() -> Self {
+    fn new(file_path: std::path::PathBuf) -> Self {
         let mut engine = EditorEngine::new();
-        let file_path = EditorEngine::default_file_path();
+
+        // Ensure parent directory exists
+        if let Some(parent) = file_path.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
 
         // Load existing file if it exists
         let last_modified = if file_path.exists() {
@@ -338,7 +342,56 @@ impl TuiEditor {
     }
 }
 
+fn resolve_file_path() -> std::path::PathBuf {
+    let args: Vec<String> = std::env::args().collect();
+
+    // Skip "gui" subcommand if present (already handled in main)
+    let file_arg = if args.len() > 1 && args[1] != "gui" {
+        Some(&args[1])
+    } else if args.len() > 2 && args[1] == "gui" {
+        // This shouldn't happen since we exec zlyph-gui, but handle it
+        Some(&args[2])
+    } else {
+        None
+    };
+
+    if let Some(path_str) = file_arg {
+        let path = std::path::PathBuf::from(path_str);
+        if path.is_absolute() {
+            path
+        } else {
+            std::env::current_dir()
+                .unwrap_or_default()
+                .join(path)
+        }
+    } else {
+        // Use default global file
+        EditorEngine::default_file_path()
+    }
+}
+
 fn main() -> Result<()> {
-    let mut editor = TuiEditor::new();
+    let args: Vec<String> = std::env::args().collect();
+
+    // Check for "gui" subcommand
+    if args.len() > 1 && args[1] == "gui" {
+        // Launch the GUI version with remaining args
+        let gui_args: Vec<&str> = args.iter().skip(2).map(|s| s.as_str()).collect();
+        let status = std::process::Command::new("zlyph-gui")
+            .args(&gui_args)
+            .status();
+
+        match status {
+            Ok(s) => std::process::exit(s.code().unwrap_or(1)),
+            Err(e) => {
+                eprintln!("Failed to launch zlyph-gui: {}", e);
+                eprintln!("Make sure zlyph-gui is installed: cargo install --path zlyph-gpui");
+                std::process::exit(1);
+            }
+        }
+    }
+
+    let file_path = resolve_file_path();
+    let mut editor = TuiEditor::new(file_path);
     editor.run()
 }
