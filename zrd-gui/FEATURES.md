@@ -22,7 +22,7 @@ zrd
 
 ### GUI (GPUI)
 ```bash
-cargo run -p zrd-gpui
+cargo run -p zrd-gui
 ```
 - Rich graphical interface
 - Variable font size (`Ctrl+=` / `Ctrl+-`)
@@ -70,14 +70,14 @@ Platform-agnostic editing engine with 26 tests:
 - EditorAction: 28 action types
 - File I/O: load_from_file, save_to_file
 
-### zrd-tui
+### zrd
 Terminal UI using ratatui:
 - Translates crossterm events to EditorActions
 - Renders cursor as `█` character
 - Selection shown with `[]` brackets
 - Polls file every 100ms
 
-### zrd-gpui
+### zrd-gui
 GUI using GPUI framework:
 - Complex TextBuffer with line wrapping
 - Mouse support with drag selection
@@ -93,7 +93,7 @@ Multiple instances can run simultaneously:
 zrd
 
 # Terminal 2 (same time)
-cargo run -p zrd-gpui
+cargo run -p zrd-gui
 
 # Terminal 3 (edit directly)
 echo "Hello!" >> ~/.config/zrd/default.txt

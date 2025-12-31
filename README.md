@@ -5,11 +5,15 @@ A minimal text editor with both Terminal UI (TUI) and GUI interfaces. Both inter
 ## Quick Start
 
 ```bash
-# Install globally
-cargo install --path zrd-tui
+# Install TUI (terminal) version
+cargo install zrd
 
-# Run from anywhere
-zrd
+# Install GUI version
+cargo install zrd-gui
+
+# Or install from source
+cargo install --path zrd
+cargo install --path zrd-gui
 ```
 
 Both editors automatically sync via `~/.config/zrd/default.txt`.
@@ -29,8 +33,8 @@ Both editors automatically sync via `~/.config/zrd/default.txt`.
 
 ```
 zrd-core    # Shared editing engine (26 tests passing)
-zrd-tui     # Terminal interface (Ratatui)
-zrd-gpui    # GUI interface (GPUI)
+zrd         # Terminal interface (Ratatui)
+zrd-gui     # GUI interface (GPUI)
 ```
 
 All editing logic lives in `zrd-core` to ensure identical behavior.
@@ -87,8 +91,8 @@ cd zrd
 cargo build
 
 # Run specific interface
-cargo run -p zrd-tui
-cargo run -p zrd-gpui
+cargo run -p zrd
+cargo run -p zrd-gui
 
 # Run tests
 cargo test -p zrd-core

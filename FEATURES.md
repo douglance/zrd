@@ -100,7 +100,7 @@ Enable debug mode (see KEYBOARD_DEBUG.md):
 
 ```bash
 # Install TUI globally as 'zrd'
-cargo install --path zrd-tui
+cargo install --path zrd
 
 # Run from anywhere
 zrd
@@ -113,9 +113,9 @@ zrd/
 ├── zrd-core/      # Shared editing engine
 │   ├── engine.rs    # EditorEngine with all logic
 │   └── actions.rs   # Platform-agnostic actions
-├── zrd-tui/       # Terminal interface
+├── zrd/           # Terminal interface
 │   └── main.rs      # Ratatui implementation
-└── zrd-gpui/      # GUI interface
+└── zrd-gui/       # GUI interface
     └── editor.rs    # GPUI implementation
 ```
 

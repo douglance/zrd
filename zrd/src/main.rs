@@ -567,7 +567,7 @@ fn main() -> Result<()> {
             Ok(s) => std::process::exit(s.code().unwrap_or(1)),
             Err(e) => {
                 eprintln!("Failed to launch zrd-gui: {}", e);
-                eprintln!("Make sure zrd-gui is installed: cargo install --path zrd-gpui");
+                eprintln!("Make sure zrd-gui is installed: cargo install --path zrd-gui");
                 std::process::exit(1);
             }
         }

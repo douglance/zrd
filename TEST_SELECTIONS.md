@@ -77,10 +77,10 @@ If Alt+arrows don't work, you need to configure your terminal:
 
 Try adding debug output:
 
-1. Edit `/Users/douglance/Developer/lv/dright/zrd-tui/src/main.rs`
+1. Edit `/Users/douglance/Developer/lv/dright/zrd/src/main.rs`
 2. Find line with `// eprintln!("Key: {:?}, Mods: {:?}", event.code, event.modifiers);`
 3. Uncomment it (remove the `//`)
-4. Rebuild: `cargo install --path zrd-tui`
+4. Rebuild: `cargo install --path zrd`
 5. Run zrd and press keys - you'll see what the terminal sends
 
 Example output:

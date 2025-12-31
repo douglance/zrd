@@ -4,7 +4,7 @@
 
 ```bash
 # Install TUI (terminal) editor
-cargo install --path zrd-tui
+cargo install --path zrd
 
 # Run it
 zrd
@@ -29,7 +29,7 @@ zrd              # Exit with Ctrl+W
 
 ### GUI (GPUI)
 ```bash
-cargo run -p zrd-gpui
+cargo run -p zrd-gui
 ```
 
 ## Keyboard Shortcuts
@@ -87,7 +87,7 @@ zrd
 # Ctrl+W to quit (auto-saved)
 
 # Afternoon: Expand in GUI with nice font
-cargo run -p zrd-gpui
+cargo run -p zrd-gui
 # Continue editing same file
 # Close window (auto-saved)
 

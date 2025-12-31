@@ -6,7 +6,7 @@ Both editors now automatically reload when the file changes externally.
 
 1. **Terminal 1**: Open GPUI editor
    ```bash
-   cargo run -p zrd-gpui
+   cargo run -p zrd-gui
    ```
 
 2. **Terminal 2**: Modify file directly
@@ -20,12 +20,12 @@ Both editors now automatically reload when the file changes externally.
 
 1. **Terminal 1**: Open TUI
    ```bash
-   cargo run -p zrd-tui
+   cargo run -p zrd
    ```
 
 2. **Terminal 2**: Open GPUI at the same time
    ```bash
-   cargo run -p zrd-gpui
+   cargo run -p zrd-gui
    ```
 
 3. **Type in TUI**: Changes appear in GPUI in real-time (within 100ms)

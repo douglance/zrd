@@ -7156,25 +7156,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "zrd-core"
-version = "0.1.0"
-
-[[package]]
-name = "zrd-gpui"
-version = "0.1.0"
-dependencies = [
- "gpui",
- "zrd-core",
-]
-
-[[package]]
-name = "zrd-tui"
+name = "zrd"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "crossterm",
  "notify",
  "ratatui",
+ "zrd-core",
+]
+
+[[package]]
+name = "zrd-core"
+version = "0.1.0"
+
+[[package]]
+name = "zrd-gui"
+version = "0.1.0"
+dependencies = [
+ "gpui",
  "zrd-core",
 ]
 

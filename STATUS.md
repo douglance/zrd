@@ -13,7 +13,7 @@
 - ✅ File I/O (load_from_file, save_to_file)
 - ✅ 26/26 tests passing
 
-### TUI (zrd-tui)
+### TUI (zrd)
 - ✅ Full Ratatui implementation
 - ✅ Installed globally as `zrd` command
 - ✅ Persistent state via `~/.config/zrd/default.txt`
@@ -25,7 +25,7 @@
 - ✅ Complex multi-line selection rendering
 - ✅ Debug mode (commented out by default)
 
-### GPUI (zrd-gpui)
+### GPUI (zrd-gui)
 - ✅ Basic GPUI implementation
 - ✅ Persistent state via `~/.config/zrd/default.txt`
 - ✅ Live file reloading (per-frame check)
@@ -87,10 +87,10 @@ Renders using:
 - Status: All passing
 - Coverage: Core editing logic
 
-### zrd-tui
+### zrd
 - No dedicated tests (manual testing only)
 
-### zrd-gpui
+### zrd-gui
 - No dedicated tests (manual testing only)
 
 ## 🚀 Performance
@@ -116,11 +116,11 @@ zrd/
 │   │   ├── actions.rs   # Action enum
 │   │   └── lib.rs       # Module exports
 │   └── Cargo.toml
-├── zrd-tui/
+├── zrd/
 │   ├── src/
 │   │   └── main.rs      # 334 lines, TUI implementation
 │   └── Cargo.toml
-├── zrd-gpui/
+├── zrd-gui/
 │   ├── src/
 │   │   ├── main.rs      # Entry point
 │   │   ├── editor.rs    # GPUI editor
@@ -138,17 +138,17 @@ cargo build
 
 # Build specific package
 cargo build -p zrd-core
-cargo build -p zrd-tui
-cargo build -p zrd-gpui
+cargo build -p zrd
+cargo build -p zrd-gui
 
 # Run tests
 cargo test -p zrd-core
 
 # Install TUI globally
-cargo install --path zrd-tui
+cargo install --path zrd
 
-# Run GPUI
-cargo run -p zrd-gpui
+# Run GUI
+cargo run -p zrd-gui
 
 # Check for errors (faster than build)
 cargo check

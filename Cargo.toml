@@ -1,8 +1,8 @@
 [workspace]
 members = [
     "zrd-core",
-    "zrd-gpui",
-    "zrd-tui",
+    "zrd-gui",
+    "zrd",
 ]
 resolver = "2"
 

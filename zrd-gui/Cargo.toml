@@ -1,19 +1,18 @@
 [package]
-name = "zrd-tui"
+name = "zrd-gui"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "A minimal text editor with terminal UI (ratatui)"
+description = "A minimal text editor built with GPUI"
+keywords = ["editor", "text-editor", "gpui"]
+categories = ["text-editors"]
 
 [[bin]]
-name = "zrd"
+name = "zrd-gui"
 path = "src/main.rs"
 
 [dependencies]
 zrd-core = { path = "../zrd-core" }
-ratatui = "0.26"
-crossterm = "0.27"
-anyhow = "1.0"
-notify = "6.1"
+gpui = "0.2"
