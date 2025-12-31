@@ -7157,7 +7157,7 @@ dependencies = [
 
 [[package]]
 name = "zrd"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "crossterm",
@@ -7168,11 +7168,11 @@ dependencies = [
 
 [[package]]
 name = "zrd-core"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "zrd-gui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "gpui",
  "zrd-core",

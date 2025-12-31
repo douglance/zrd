@@ -80,7 +80,7 @@ fn main() {
                 },
             })),
             titlebar: Some(TitlebarOptions {
-                title: Some("Dright Editor".into()),
+                title: Some("zrd".into()),
                 appears_transparent: true,
                 traffic_light_position: Some(point(px(8.0), px(8.0))),
             }),
@@ -93,6 +93,11 @@ fn main() {
             app.new(|cx| TextEditor::new(path, cx))
         })
         .unwrap();
+
+        // Quit app when any window is closed (makes it work with git, etc.)
+        let _ = app.on_window_closed(|app| {
+            app.quit();
+        });
 
         app.activate(true);
     });
