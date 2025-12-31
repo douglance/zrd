@@ -9,24 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-  build:
-    needs: create-release
+  build-tui:
     strategy:
       matrix:
         include:
@@ -57,27 +40,58 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+      - name: Build TUI
+        run: cargo build --release --package zrd --target ${{ matrix.target }}
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
-          asset_name: ${{ matrix.asset_name }}
-          asset_content_type: application/octet-stream
+          name: ${{ matrix.asset_name }}
+          path: ./target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
 
-  publish-crate:
-    needs: build
-    runs-on: ubuntu-latest
+  build-gui:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: zrd-gui
+            asset_name: zrd-gui-macos-x86_64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: zrd-gui
+            asset_name: zrd-gui-macos-aarch64
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
 
-      - name: Publish to crates.io
-        run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
+      - name: Build GUI
+        run: cargo build --release --package zrd-gui --target ${{ matrix.target }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ./target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+
+  release:
+    needs: [build-tui, build-gui]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
