@@ -14,5 +14,5 @@ name = "zrd-gui"
 path = "src/main.rs"
 
 [dependencies]
-zrd-core = { path = "../zrd-core" }
+zrd-core = { version = "0.1.0", path = "../zrd-core" }
 gpui = "0.2"
