@@ -15,4 +15,4 @@ path = "src/main.rs"
 
 [dependencies]
 zlyph-core = { path = "../zlyph-core" }
-gpui = { git = "https://github.com/zed-industries/zed" }
+gpui = "0.2"
