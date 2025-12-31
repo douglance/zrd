@@ -1,4 +1,4 @@
-use zlyph_core::{BufferPosition, EditorAction, EditorEngine};
+use zrd_core::{BufferPosition, EditorAction, EditorEngine};
 
 #[test]
 fn test_type_character() {

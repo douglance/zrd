@@ -1,20 +1,20 @@
-# Zlyph Usage Guide
+# Zrd Usage Guide
 
 ## Quick Start
 
 ```bash
 # Install TUI (terminal) editor
-cargo install --path zlyph-tui
+cargo install --path zrd-tui
 
 # Run it
-zlyph
+zrd
 ```
 
-The `zlyph` command opens your scratchpad at `~/.config/zlyph/default.txt`
+The `zrd` command opens your scratchpad at `~/.config/zrd/default.txt`
 
 ## Shared State
 
-Both the TUI and GPUI versions work on the **same file**: `~/.config/zlyph/default.txt`
+Both the TUI and GPUI versions work on the **same file**: `~/.config/zrd/default.txt`
 
 - Changes auto-save after every keystroke
 - Switch between editors seamlessly
@@ -24,12 +24,12 @@ Both the TUI and GPUI versions work on the **same file**: `~/.config/zlyph/defau
 
 ### Terminal (TUI)
 ```bash
-zlyph              # Exit with Ctrl+W
+zrd              # Exit with Ctrl+W
 ```
 
-### GUI (GPUI)  
+### GUI (GPUI)
 ```bash
-cargo run -p zlyph-gpui
+cargo run -p zrd-gpui
 ```
 
 ## Keyboard Shortcuts
@@ -71,10 +71,10 @@ Smart list continuation works in both editors:
 ```
 Type: - First item
 Press Enter
-→ Automatically creates: - 
+→ Automatically creates: -
 
 Type: 1. First item
-Press Enter  
+Press Enter
 → Automatically creates: 2.
 ```
 
@@ -82,22 +82,22 @@ Press Enter
 
 ```bash
 # Morning: Quick notes in terminal
-zlyph
+zrd
 # Type meeting notes
 # Ctrl+W to quit (auto-saved)
 
 # Afternoon: Expand in GUI with nice font
-cargo run -p zlyph-gpui
+cargo run -p zrd-gpui
 # Continue editing same file
 # Close window (auto-saved)
 
 # Evening: Review in terminal
-zlyph
+zrd
 # All your work from both sessions is there
 ```
 
 ## File Location
 
-Your scratchpad file: `~/.config/zlyph/default.txt`
+Your scratchpad file: `~/.config/zrd/default.txt`
 
 You can directly edit this file or use either editor - they all stay in sync.

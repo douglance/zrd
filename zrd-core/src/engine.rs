@@ -697,7 +697,7 @@ impl EditorEngine {
             .unwrap_or_else(|_| ".".to_string());
         PathBuf::from(home)
             .join(".config")
-            .join("zlyph")
+            .join("zrd")
             .join("default.txt")
     }
 }

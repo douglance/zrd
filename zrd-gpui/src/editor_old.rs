@@ -4,7 +4,7 @@ use crate::theme::Theme;
 use gpui::prelude::*;
 use gpui::*;
 use std::time::{Duration, Instant};
-use zlyph_core::{EditorAction, EditorEngine};
+use zrd_core::{EditorAction, EditorEngine};
 
 pub struct TextEditor {
     engine: EditorEngine,

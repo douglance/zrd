@@ -2,7 +2,7 @@
 
 ## Debug Mode Enabled
 
-The TUI now shows what keys your terminal is sending. When you run `zlyph`, you'll see debug output like:
+The TUI now shows what keys your terminal is sending. When you run `zrd`, you'll see debug output like:
 
 ```
 Key: Left, Mods: SUPER       # Cmd+Left
@@ -12,15 +12,15 @@ Key: Char('b'), Mods: ALT    # Terminal intercepted Alt+Left as Escape+b
 
 ## How to Test
 
-1. **Run zlyph with debug output visible**:
+1. **Run zrd with debug output visible**:
    ```bash
-   zlyph 2>debug.log &
+   zrd 2>debug.log &
    tail -f debug.log
    ```
 
 2. **Or run in one terminal and watch stderr**:
    ```bash
-   zlyph
+   zrd
    # Debug output appears in the terminal
    ```
 
@@ -35,7 +35,7 @@ Key: Char('b'), Mods: ALT    # Terminal intercepted Alt+Left as Escape+b
 ### ✅ Working (Terminal Configured):
 ```
 Key: Left, Mods: SUPER        # Cmd+Left works
-Key: Right, Mods: SUPER       # Cmd+Right works  
+Key: Right, Mods: SUPER       # Cmd+Right works
 Key: Left, Mods: ALT          # Alt+Left works
 Key: Right, Mods: ALT         # Alt+Right works
 ```
@@ -72,19 +72,19 @@ Once keys are passing through correctly, these all work:
 2. Check "Use Option as Meta key"
 
 ### iTerm2
-1. Preferences → Profiles → Keys  
+1. Preferences → Profiles → Keys
 2. Set "Left Option key" to "Esc+"
 
 ### Test After Config
 1. Close and reopen terminal
-2. Run `zlyph` again
+2. Run `zrd` again
 3. Press `Alt+Left` - should now see `Key: Left, Mods: ALT`
 
 ## Share Debug Output
 
 If keys still don't work, run:
 ```bash
-zlyph 2>&1 | tee keyboard-debug.txt
+zrd 2>&1 | tee keyboard-debug.txt
 # Press the problematic keys
 # Ctrl+W to quit
 # Share keyboard-debug.txt

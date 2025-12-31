@@ -7156,26 +7156,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "zlyph-core"
+name = "zrd-core"
 version = "0.1.0"
 
 [[package]]
-name = "zlyph-gpui"
+name = "zrd-gpui"
 version = "0.1.0"
 dependencies = [
  "gpui",
- "zlyph-core",
+ "zrd-core",
 ]
 
 [[package]]
-name = "zlyph-tui"
+name = "zrd-tui"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "crossterm",
  "notify",
  "ratatui",
- "zlyph-core",
+ "zrd-core",
 ]
 
 [[package]]

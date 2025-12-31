@@ -6,12 +6,12 @@ Both editors now automatically reload when the file changes externally.
 
 1. **Terminal 1**: Open GPUI editor
    ```bash
-   cargo run -p zlyph-gpui
+   cargo run -p zrd-gpui
    ```
 
 2. **Terminal 2**: Modify file directly
    ```bash
-   echo "Hello from terminal!" >> ~/.config/zlyph/default.txt
+   echo "Hello from terminal!" >> ~/.config/zrd/default.txt
    ```
 
 3. **Verify**: Check GPUI window - should show new content immediately
@@ -20,12 +20,12 @@ Both editors now automatically reload when the file changes externally.
 
 1. **Terminal 1**: Open TUI
    ```bash
-   cargo run -p zlyph-tui
+   cargo run -p zrd-tui
    ```
 
 2. **Terminal 2**: Open GPUI at the same time
    ```bash
-   cargo run -p zlyph-gpui
+   cargo run -p zrd-gpui
    ```
 
 3. **Type in TUI**: Changes appear in GPUI in real-time (within 100ms)
@@ -51,8 +51,8 @@ Both editors now automatically reload when the file changes externally.
 
 ## Expected Behavior
 
-✅ Edit in TUI → See changes in GPUI immediately  
-✅ Edit in GPUI → See changes in TUI immediately  
-✅ Edit file directly → Both editors reload automatically  
-✅ No data loss (auto-save after every action)  
-✅ Undo/redo preserved within each editor session  
+✅ Edit in TUI → See changes in GPUI immediately
+✅ Edit in GPUI → See changes in TUI immediately
+✅ Edit file directly → Both editors reload automatically
+✅ No data loss (auto-save after every action)
+✅ Undo/redo preserved within each editor session

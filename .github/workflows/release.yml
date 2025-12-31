@@ -32,20 +32,20 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: zlyph
-            asset_name: zlyph-linux-x86_64
+            artifact_name: zrd
+            asset_name: zrd-linux-x86_64
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: zlyph
-            asset_name: zlyph-macos-x86_64
+            artifact_name: zrd
+            asset_name: zrd-macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: zlyph
-            asset_name: zlyph-macos-aarch64
+            artifact_name: zrd
+            asset_name: zrd-macos-aarch64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: zlyph.exe
-            asset_name: zlyph-windows-x86_64.exe
+            artifact_name: zrd.exe
+            asset_name: zrd-windows-x86_64.exe
 
     runs-on: ${{ matrix.os }}
 

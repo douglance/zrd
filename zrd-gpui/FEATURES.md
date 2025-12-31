@@ -1,8 +1,8 @@
-# Zlyph Features
+# Zrd Features
 
 ## Shared Persistent State
 
-Both editors operate on a single shared file: `~/.config/zlyph/default.txt`
+Both editors operate on a single shared file: `~/.config/zrd/default.txt`
 
 - **Auto-save**: Every keystroke is saved immediately
 - **Live reload**: Changes from other editors appear in real-time
@@ -13,7 +13,7 @@ Both editors operate on a single shared file: `~/.config/zlyph/default.txt`
 
 ### TUI (Terminal)
 ```bash
-zlyph
+zrd
 ```
 - Minimal text-based interface
 - Runs in any terminal
@@ -22,7 +22,7 @@ zlyph
 
 ### GUI (GPUI)
 ```bash
-cargo run -p zlyph-gpui
+cargo run -p zrd-gpui
 ```
 - Rich graphical interface
 - Variable font size (`Ctrl+=` / `Ctrl+-`)
@@ -63,21 +63,21 @@ Type a list item and press Enter:
 
 ## Architecture
 
-### zlyph-core
+### zrd-core
 Platform-agnostic editing engine with 26 tests:
 - EditorState: lines, cursor, selection, font size
 - EditorEngine: business logic for all actions
 - EditorAction: 28 action types
 - File I/O: load_from_file, save_to_file
 
-### zlyph-tui
+### zrd-tui
 Terminal UI using ratatui:
 - Translates crossterm events to EditorActions
 - Renders cursor as `█` character
 - Selection shown with `[]` brackets
 - Polls file every 100ms
 
-### zlyph-gpui
+### zrd-gpui
 GUI using GPUI framework:
 - Complex TextBuffer with line wrapping
 - Mouse support with drag selection
@@ -90,13 +90,13 @@ Multiple instances can run simultaneously:
 
 ```bash
 # Terminal 1
-zlyph
+zrd
 
 # Terminal 2 (same time)
-cargo run -p zlyph-gpui
+cargo run -p zrd-gpui
 
 # Terminal 3 (edit directly)
-echo "Hello!" >> ~/.config/zlyph/default.txt
+echo "Hello!" >> ~/.config/zrd/default.txt
 ```
 
 All instances stay synchronized automatically.

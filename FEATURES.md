@@ -1,12 +1,12 @@
-# Zlyph Features
+# Zrd Features
 
 ## Overview
 
-Zlyph is a minimal text editor with both Terminal UI (TUI) and GUI (GPUI) interfaces. Both interfaces share the same editing engine and operate on a single persistent file.
+Zrd is a minimal text editor with both Terminal UI (TUI) and GUI (GPUI) interfaces. Both interfaces share the same editing engine and operate on a single persistent file.
 
 ## Shared State
 
-**File Location**: `~/.config/zlyph/default.txt`
+**File Location**: `~/.config/zrd/default.txt`
 
 Both editors automatically:
 - Load this file on startup
@@ -99,24 +99,24 @@ Enable debug mode (see KEYBOARD_DEBUG.md):
 ## Installation
 
 ```bash
-# Install TUI globally as 'zlyph'
-cargo install --path zlyph-tui
+# Install TUI globally as 'zrd'
+cargo install --path zrd-tui
 
 # Run from anywhere
-zlyph
+zrd
 ```
 
 ## Architecture
 
 ```
-zlyph/
-├── zlyph-core/      # Shared editing engine
+zrd/
+├── zrd-core/      # Shared editing engine
 │   ├── engine.rs    # EditorEngine with all logic
 │   └── actions.rs   # Platform-agnostic actions
-├── zlyph-tui/       # Terminal interface
+├── zrd-tui/       # Terminal interface
 │   └── main.rs      # Ratatui implementation
-└── zlyph-gpui/      # GUI interface
+└── zrd-gpui/      # GUI interface
     └── editor.rs    # GPUI implementation
 ```
 
-All editing logic lives in `zlyph-core` to ensure identical behavior across interfaces.
+All editing logic lives in `zrd-core` to ensure identical behavior across interfaces.

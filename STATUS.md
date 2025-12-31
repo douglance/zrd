@@ -1,8 +1,8 @@
-# Zlyph Project Status
+# Zrd Project Status
 
 ## ✅ Completed Features
 
-### Core Engine (zlyph-core)
+### Core Engine (zrd-core)
 - ✅ Platform-agnostic EditorEngine with EditorAction enum
 - ✅ All navigation actions (character, word, line)
 - ✅ All selection actions (character, word, line, select all)
@@ -13,10 +13,10 @@
 - ✅ File I/O (load_from_file, save_to_file)
 - ✅ 26/26 tests passing
 
-### TUI (zlyph-tui)
+### TUI (zrd-tui)
 - ✅ Full Ratatui implementation
-- ✅ Installed globally as `zlyph` command
-- ✅ Persistent state via `~/.config/zlyph/default.txt`
+- ✅ Installed globally as `zrd` command
+- ✅ Persistent state via `~/.config/zrd/default.txt`
 - ✅ Live file reloading (100ms polling)
 - ✅ Auto-save on every action
 - ✅ Cursor with reverse video highlighting (no extra space)
@@ -25,9 +25,9 @@
 - ✅ Complex multi-line selection rendering
 - ✅ Debug mode (commented out by default)
 
-### GPUI (zlyph-gpui)
+### GPUI (zrd-gpui)
 - ✅ Basic GPUI implementation
-- ✅ Persistent state via `~/.config/zlyph/default.txt`
+- ✅ Persistent state via `~/.config/zrd/default.txt`
 - ✅ Live file reloading (per-frame check)
 - ✅ Auto-save on every action
 - ✅ All keyboard shortcuts mapped
@@ -82,15 +82,15 @@ Renders using:
 
 ## 📊 Test Coverage
 
-### zlyph-core
+### zrd-core
 - Total: 26 tests
 - Status: All passing
 - Coverage: Core editing logic
 
-### zlyph-tui
+### zrd-tui
 - No dedicated tests (manual testing only)
 
-### zlyph-gpui
+### zrd-gpui
 - No dedicated tests (manual testing only)
 
 ## 🚀 Performance
@@ -109,18 +109,18 @@ codegen-units = 1
 ## 📂 File Structure
 
 ```
-zlyph/
-├── zlyph-core/
+zrd/
+├── zrd-core/
 │   ├── src/
 │   │   ├── engine.rs    # 500+ lines, core logic
 │   │   ├── actions.rs   # Action enum
 │   │   └── lib.rs       # Module exports
 │   └── Cargo.toml
-├── zlyph-tui/
+├── zrd-tui/
 │   ├── src/
 │   │   └── main.rs      # 334 lines, TUI implementation
 │   └── Cargo.toml
-├── zlyph-gpui/
+├── zrd-gpui/
 │   ├── src/
 │   │   ├── main.rs      # Entry point
 │   │   ├── editor.rs    # GPUI editor
@@ -137,18 +137,18 @@ zlyph/
 cargo build
 
 # Build specific package
-cargo build -p zlyph-core
-cargo build -p zlyph-tui
-cargo build -p zlyph-gpui
+cargo build -p zrd-core
+cargo build -p zrd-tui
+cargo build -p zrd-gpui
 
 # Run tests
-cargo test -p zlyph-core
+cargo test -p zrd-core
 
 # Install TUI globally
-cargo install --path zlyph-tui
+cargo install --path zrd-tui
 
 # Run GPUI
-cargo run -p zlyph-gpui
+cargo run -p zrd-gpui
 
 # Check for errors (faster than build)
 cargo check

@@ -1,4 +1,4 @@
-# Zlyph
+# Zrd
 
 A minimal text editor with both Terminal UI (TUI) and GUI interfaces. Both interfaces share the same editing engine and operate on a single persistent file for seamless synchronization.
 
@@ -6,13 +6,13 @@ A minimal text editor with both Terminal UI (TUI) and GUI interfaces. Both inter
 
 ```bash
 # Install globally
-cargo install --path zlyph-tui
+cargo install --path zrd-tui
 
 # Run from anywhere
-zlyph
+zrd
 ```
 
-Both editors automatically sync via `~/.config/zlyph/default.txt`.
+Both editors automatically sync via `~/.config/zrd/default.txt`.
 
 ## Features
 
@@ -28,12 +28,12 @@ Both editors automatically sync via `~/.config/zlyph/default.txt`.
 ## Architecture
 
 ```
-zlyph-core    # Shared editing engine (26 tests passing)
-zlyph-tui     # Terminal interface (Ratatui)
-zlyph-gpui    # GUI interface (GPUI)
+zrd-core    # Shared editing engine (26 tests passing)
+zrd-tui     # Terminal interface (Ratatui)
+zrd-gpui    # GUI interface (GPUI)
 ```
 
-All editing logic lives in `zlyph-core` to ensure identical behavior.
+All editing logic lives in `zrd-core` to ensure identical behavior.
 
 ## Keyboard Shortcuts
 
@@ -82,16 +82,16 @@ See `KEYBOARD_DEBUG.md` for troubleshooting.
 ## Building from Source
 
 ```bash
-git clone https://github.com/douglance/zlyph.git
-cd zlyph
+git clone https://github.com/douglance/zrd.git
+cd zrd
 cargo build
 
 # Run specific interface
-cargo run -p zlyph-tui
-cargo run -p zlyph-gpui
+cargo run -p zrd-tui
+cargo run -p zrd-gpui
 
 # Run tests
-cargo test -p zlyph-core
+cargo test -p zrd-core
 ```
 
 ## Documentation

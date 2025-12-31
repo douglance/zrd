@@ -16,7 +16,7 @@ use ratatui::{
     Terminal,
 };
 use std::time::Duration;
-use zlyph_core::{EditorAction, EditorEngine};
+use zrd_core::{EditorAction, EditorEngine};
 
 struct TuiEditor {
     engine: EditorEngine,
@@ -532,7 +532,7 @@ fn resolve_file_path() -> std::path::PathBuf {
     let file_arg = if args.len() > 1 && args[1] != "gui" {
         Some(&args[1])
     } else if args.len() > 2 && args[1] == "gui" {
-        // This shouldn't happen since we exec zlyph-gui, but handle it
+        // This shouldn't happen since we exec zrd-gui, but handle it
         Some(&args[2])
     } else {
         None
@@ -558,15 +558,15 @@ fn main() -> Result<()> {
     if args.len() > 1 && args[1] == "gui" {
         // Launch the GUI version with remaining args
         let gui_args: Vec<&str> = args.iter().skip(2).map(|s| s.as_str()).collect();
-        let status = std::process::Command::new("zlyph-gui")
+        let status = std::process::Command::new("zrd-gui")
             .args(&gui_args)
             .status();
 
         match status {
             Ok(s) => std::process::exit(s.code().unwrap_or(1)),
             Err(e) => {
-                eprintln!("Failed to launch zlyph-gui: {}", e);
-                eprintln!("Make sure zlyph-gui is installed: cargo install --path zlyph-gpui");
+                eprintln!("Failed to launch zrd-gui: {}", e);
+                eprintln!("Make sure zrd-gui is installed: cargo install --path zrd-gpui");
                 std::process::exit(1);
             }
         }

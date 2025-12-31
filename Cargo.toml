@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "zlyph-core",
-    "zlyph-gpui",
-    "zlyph-tui",
+    "zrd-core",
+    "zrd-gpui",
+    "zrd-tui",
 ]
 resolver = "2"
 
@@ -11,7 +11,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Doug Lance"]
 license = "MIT"
-repository = "https://github.com/douglance/zlyph"
+repository = "https://github.com/douglance/zrd"
 
 [profile.dev]
 opt-level = 3

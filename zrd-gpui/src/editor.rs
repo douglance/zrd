@@ -4,7 +4,7 @@ use crate::theme::Theme;
 use gpui::prelude::*;
 use gpui::*;
 use std::time::{Duration, Instant};
-use zlyph_core::{EditorAction, EditorEngine};
+use zrd_core::{EditorAction, EditorEngine};
 
 pub struct TextEditor {
     engine: EditorEngine,
@@ -113,7 +113,7 @@ impl TextEditor {
     }
 
     fn set_cursor(&mut self, pos: BufferPosition) {
-        self.engine.state_mut().cursor = zlyph_core::BufferPosition::new(pos.row, pos.column);
+        self.engine.state_mut().cursor = zrd_core::BufferPosition::new(pos.row, pos.column);
     }
 
     fn get_selection_anchor(&self) -> Option<BufferPosition> {
@@ -121,7 +121,7 @@ impl TextEditor {
     }
 
     fn set_selection_anchor(&mut self, pos: Option<BufferPosition>) {
-        self.engine.state_mut().selection_anchor = pos.map(|p| zlyph_core::BufferPosition::new(p.row, p.column));
+        self.engine.state_mut().selection_anchor = pos.map(|p| zrd_core::BufferPosition::new(p.row, p.column));
     }
 
     fn get_font_size(&self) -> f32 {

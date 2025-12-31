@@ -1,4 +1,4 @@
-# Terminal Configuration for Zlyph
+# Terminal Configuration for Zrd
 
 ## Mac Terminal Setup
 
@@ -34,7 +34,7 @@ If you prefer not to change terminal settings, use these shortcuts instead:
 These work without any terminal configuration:
 
 - `Cmd+Left` - Jump to line start
-- `Cmd+Right` - Jump to end of line  
+- `Cmd+Right` - Jump to end of line
 - `Cmd+Backspace` - Delete current line
 - `Ctrl+Z` - Undo
 - `Ctrl+Shift+Z` - Redo
@@ -47,7 +47,7 @@ These work without any terminal configuration:
 After configuring your terminal, test with:
 
 ```bash
-zlyph
+zrd
 # Type: "The quick brown fox jumps"
 # Press Alt+Right repeatedly - should jump by word
 # Press Alt+Left - should jump back by word

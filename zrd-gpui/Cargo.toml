@@ -1,5 +1,5 @@
 [package]
-name = "zlyph-gpui"
+name = "zrd-gpui"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -10,9 +10,9 @@ keywords = ["editor", "text-editor", "gpui"]
 categories = ["text-editors"]
 
 [[bin]]
-name = "zlyph-gui"
+name = "zrd-gui"
 path = "src/main.rs"
 
 [dependencies]
-zlyph-core = { path = "../zlyph-core" }
+zrd-core = { path = "../zrd-core" }
 gpui = "0.2"

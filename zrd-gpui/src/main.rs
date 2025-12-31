@@ -7,7 +7,7 @@ use actions::*;
 use editor::TextEditor;
 use gpui::*;
 use std::path::PathBuf;
-use zlyph_core::EditorEngine;
+use zrd_core::EditorEngine;
 
 fn resolve_file_path() -> PathBuf {
     let args: Vec<String> = std::env::args().collect();
