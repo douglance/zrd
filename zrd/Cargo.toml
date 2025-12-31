@@ -5,6 +5,7 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "../README.md"
 description = "A minimal text editor with terminal UI (ratatui)"
 keywords = ["editor", "text-editor", "tui", "terminal"]
 categories = ["command-line-utilities", "text-editors"]
@@ -14,7 +15,7 @@ name = "zrd"
 path = "src/main.rs"
 
 [dependencies]
-zrd-core = { version = "0.1.0", path = "../zrd-core" }
+zrd-core = { version = "0.1.1", path = "../zrd-core" }
 ratatui = "0.26"
 crossterm = "0.27"
 anyhow = "1.0"

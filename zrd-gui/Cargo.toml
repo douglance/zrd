@@ -5,6 +5,7 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "../README.md"
 description = "A minimal text editor built with GPUI"
 keywords = ["editor", "text-editor", "gpui"]
 categories = ["text-editors"]
@@ -14,5 +15,5 @@ name = "zrd-gui"
 path = "src/main.rs"
 
 [dependencies]
-zrd-core = { version = "0.1.0", path = "../zrd-core" }
+zrd-core = { version = "0.1.1", path = "../zrd-core" }
 gpui = "0.2"

@@ -5,6 +5,7 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
+readme = "../README.md"
 description = "Core editing logic for Zrd text editor (platform-agnostic)"
 keywords = ["editor", "text-editor", "buffer", "undo-redo"]
 categories = ["text-editors", "text-processing"]
