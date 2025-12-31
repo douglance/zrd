@@ -253,7 +253,8 @@ impl TuiEditor {
         // eprintln!("Key: {:?}, Mods: {:?}", event.code, event.modifiers);
 
         let action = match (event.code, event.modifiers) {
-            // Ctrl+W to quit
+            // Escape or Ctrl+W to quit
+            (KeyCode::Esc, _) => Some(EditorAction::Quit),
             (KeyCode::Char('w'), KeyModifiers::CONTROL) => Some(EditorAction::Quit),
 
             // Undo/Redo
