@@ -19,6 +19,7 @@ struct TuiEditor {
     engine: EditorEngine,
     file_path: std::path::PathBuf,
     last_modified: Option<std::time::SystemTime>,
+    scroll_offset: u16,
 }
 
 impl TuiEditor {
@@ -42,6 +43,22 @@ impl TuiEditor {
             engine,
             file_path,
             last_modified,
+            scroll_offset: 0,
+        }
+    }
+
+    fn ensure_cursor_visible(&mut self, visible_height: u16) {
+        let cursor_row = self.engine.state().cursor.row as u16;
+        let padding = 2u16;
+
+        // Scroll up if cursor is above visible area
+        if cursor_row < self.scroll_offset + padding {
+            self.scroll_offset = cursor_row.saturating_sub(padding);
+        }
+
+        // Scroll down if cursor is below visible area
+        if cursor_row >= self.scroll_offset + visible_height.saturating_sub(padding) {
+            self.scroll_offset = cursor_row.saturating_sub(visible_height.saturating_sub(padding + 1));
         }
     }
 
@@ -107,6 +124,10 @@ impl TuiEditor {
             if self.check_and_reload() {
                 // File was reloaded
             }
+
+            // Ensure cursor is visible before rendering
+            let visible_height = terminal.size()?.height.saturating_sub(2);
+            self.ensure_cursor_visible(visible_height);
 
             terminal.draw(|frame| self.render(frame))?;
 
@@ -327,7 +348,8 @@ impl TuiEditor {
         }
 
         let paragraph = Paragraph::new(display_lines)
-            .style(Style::default().fg(Color::White));
+            .style(Style::default().fg(Color::White))
+            .scroll((self.scroll_offset, 0));
 
         // Create a rect with padding on all sides
         let area = frame.size();

@@ -16,6 +16,7 @@ pub struct TextEditor {
     last_click_position: Option<BufferPosition>,
     file_path: std::path::PathBuf,
     last_modified: Option<std::time::SystemTime>,
+    scroll_offset: f32,
 }
 
 impl TextEditor {
@@ -47,6 +48,7 @@ impl TextEditor {
             last_click_position: None,
             file_path,
             last_modified,
+            scroll_offset: 0.0,
         }
     }
 
@@ -67,6 +69,27 @@ impl TextEditor {
             if let Ok(modified) = metadata.modified() {
                 self.last_modified = Some(modified);
             }
+        }
+        self.ensure_cursor_visible();
+    }
+
+    fn ensure_cursor_visible(&mut self) {
+        let line_height = self.get_font_size() * 1.5;
+        let cursor_row = self.get_cursor().row as f32;
+        let cursor_y = cursor_row * line_height;
+
+        // Assume visible height is roughly 600px minus padding
+        let visible_height = 500.0;
+        let padding = 40.0;
+
+        // Scroll up if cursor is above visible area
+        if cursor_y < self.scroll_offset + padding {
+            self.scroll_offset = (cursor_y - padding).max(0.0);
+        }
+
+        // Scroll down if cursor is below visible area
+        if cursor_y > self.scroll_offset + visible_height - padding {
+            self.scroll_offset = cursor_y - visible_height + padding;
         }
     }
 
@@ -181,41 +204,49 @@ impl TextEditor {
 
     fn move_to_beginning_of_line(&mut self, _: &MoveToBeginningOfLine, _window: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveToBeginningOfLine);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_to_end_of_line(&mut self, _: &MoveToEndOfLine, _window: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveToEndOfLine);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_left(&mut self, _: &MoveLeft, _window: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveLeft);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_right(&mut self, _: &MoveRight, _window: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveRight);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_up(&mut self, _: &MoveUp, _window: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveUp);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_down(&mut self, _: &MoveDown, _window: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveDown);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_word_left(&mut self, _: &MoveWordLeft, _: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveWordLeft);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
     fn move_word_right(&mut self, _: &MoveWordRight, _: &mut Window, cx: &mut Context<Self>) {
         self.engine.handle_action(EditorAction::MoveWordRight);
+        self.ensure_cursor_visible();
         cx.notify();
     }
 
@@ -512,6 +543,23 @@ impl TextEditor {
             }
         }
     }
+
+    fn handle_scroll(&mut self, event: &ScrollWheelEvent, _window: &mut Window, cx: &mut Context<Self>) {
+        let line_height = self.get_font_size() * 1.5;
+        let delta: f32 = match event.delta {
+            ScrollDelta::Lines(lines) => lines.y * line_height,
+            ScrollDelta::Pixels(pixels) => f32::from(pixels.y),
+        };
+
+        self.scroll_offset -= delta;
+
+        // Clamp scroll offset
+        let total_lines = self.buffer.line_count() as f32;
+        let max_scroll = (total_lines * line_height).max(0.0);
+        self.scroll_offset = self.scroll_offset.clamp(0.0, max_scroll);
+
+        cx.notify();
+    }
 }
 
 impl Focusable for TextEditor {
@@ -570,12 +618,12 @@ impl Render for TextEditor {
             .on_mouse_down(MouseButton::Left, _cx.listener(Self::handle_mouse_down))
             .on_mouse_move(_cx.listener(Self::handle_mouse_move))
             .on_mouse_up(MouseButton::Left, _cx.listener(Self::handle_mouse_up))
+            .on_scroll_wheel(_cx.listener(Self::handle_scroll))
             .size_full()
             .bg(self.theme.background)
             .text_color(self.theme.text)
             .cursor(CursorStyle::IBeam)
-            .pt_10()
-            .px_4()
+            .overflow_hidden()
             .child(
                 div()
                     .font_family("Monaco")
@@ -583,6 +631,9 @@ impl Render for TextEditor {
                     .line_height(relative(1.5))
                     .flex()
                     .flex_col()
+                    .pt_10()
+                    .px_4()
+                    .top(px(-self.scroll_offset))
                     .when(is_empty, |parent| {
                         parent.child(
                             div()
