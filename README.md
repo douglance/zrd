@@ -1,110 +1,76 @@
-# Zrd
+# zrd
 
-A minimal text editor with both Terminal UI (TUI) and GUI interfaces. Both interfaces share the same editing engine and operate on a single persistent file for seamless synchronization.
+A fast, minimal text editor for the terminal. That's it.
 
-## Quick Start
+## Install
 
 ```bash
-# Install TUI (terminal) version
 cargo install zrd
-
-# Install GUI version
-cargo install zrd-gui
-
-# Or install from source
-cargo install --path zrd
-cargo install --path zrd-gui
 ```
 
-Both editors automatically sync via `~/.config/zrd/default.txt`.
+## Use
 
-## Features
-
-- **Dual Interface**: Terminal UI (Ratatui) and GUI (GPUI)
-- **Shared State**: Both editors operate on single file with live reloading
-- **Complete Editing**: Full navigation, selection, deletion with Mac-style shortcuts
-- **Undo/Redo**: Intelligent change tracking
-- **Line Operations**: Move, delete, duplicate lines
-- **Word Operations**: Navigate and delete by word boundaries
-- **Auto-Save**: Every edit instantly persisted
-- **Visual Selection**: Clear highlighting for selected text
-
-## Architecture
-
-```
-zrd-core    # Shared editing engine (26 tests passing)
-zrd         # Terminal interface (Ratatui)
-zrd-gui     # GUI interface (GPUI)
+```bash
+zrd myfile.txt      # Edit a file
+zrd                 # Edit default scratch file (~/.config/zrd/default.txt)
 ```
 
-All editing logic lives in `zrd-core` to ensure identical behavior.
+Press `Esc` to quit. Changes save automatically.
+
+## Why zrd?
+
+- **Fast** - Opens instantly, no lag
+- **Minimal** - Does one thing: edit text
+- **Familiar** - Standard keyboard shortcuts (Ctrl+Z, Ctrl+A, etc.)
+- **Mouse support** - Click to position, drag to select, scroll wheel works
+- **Auto-save** - Never lose work
 
 ## Keyboard Shortcuts
 
-### Navigation
-- `↑ ↓ ← →` - Move cursor
-- `Cmd+Left` / `Home` - Beginning of line
-- `Cmd+Right` / `End` - End of line
-- `Alt+Left` - Move word left
-- `Alt+Right` - Move word right
-- `Alt+Up` - Move line up
-- `Alt+Down` - Move line down
+| Action | Keys |
+|--------|------|
+| Quit | `Esc` or `Ctrl+W` |
+| Undo / Redo | `Ctrl+Z` / `Ctrl+Shift+Z` |
+| Select all | `Ctrl+A` |
+| Start/End of line | `Home` / `End` or `Cmd+←/→` |
+| Word left/right | `Alt+←/→` |
+| Delete word | `Alt+Backspace` / `Alt+Delete` |
+| Delete line | `Ctrl+Shift+K` |
+| Move line up/down | `Alt+↑/↓` |
 
-### Selection
-- `Shift+Arrow` - Select characters
-- `Shift+Alt+Arrow` - Select words
-- `Ctrl+A` - Select all
+Full list: [FEATURES.md](FEATURES.md)
 
-### Editing
-- `Backspace` - Delete left
-- `Delete` - Delete right
-- `Alt+Backspace` - Delete word left
-- `Alt+Delete` - Delete word right
-- `Ctrl+Backspace` - Delete to line start
-- `Ctrl+Delete` - Delete to line end
-- `Cmd+Backspace` - Delete entire line
-- `Ctrl+Shift+K` - Delete line
-- `Tab` / `Shift+Tab` - Indent / Outdent
+## Mouse
 
-### Undo/Redo
-- `Ctrl+Z` - Undo
-- `Ctrl+Shift+Z` - Redo
+- **Click** - Position cursor
+- **Drag** - Select text
+- **Scroll** - Navigate document
 
-### System
-- `Ctrl+W` - Quit
+## GUI Version (macOS)
 
-## Terminal Configuration
+There's also a native GUI version using GPUI:
 
-**If Alt+arrow keys don't work:**
+```bash
+cargo install zrd-gui
+zrd-gui myfile.txt
+```
 
-**Terminal.app**: Preferences → Profiles → Keyboard → Check "Use Option as Meta key"
+Both share the same editing engine and can edit the same file simultaneously with live sync.
 
-**iTerm2**: Preferences → Profiles → Keys → Set "Left Option key" to "Esc+"
+## Terminal Setup
 
-See `KEYBOARD_DEBUG.md` for troubleshooting.
+If `Alt+arrow` keys don't work:
 
-## Building from Source
+- **Terminal.app**: Preferences → Profiles → Keyboard → "Use Option as Meta key"
+- **iTerm2**: Preferences → Profiles → Keys → Left Option → "Esc+"
+
+## Build from Source
 
 ```bash
 git clone https://github.com/douglance/zrd.git
 cd zrd
-cargo build
-
-# Run specific interface
-cargo run -p zrd
-cargo run -p zrd-gui
-
-# Run tests
-cargo test -p zrd-core
+cargo install --path zrd
 ```
-
-## Documentation
-
-- `FEATURES.md` - Complete feature list
-- `KEYBOARD_DEBUG.md` - Keyboard troubleshooting guide
-- `TEST_SELECTIONS.md` - How to test selections
-- `STATUS.md` - Project status and known issues
-- `CLAUDE.md` - Development guidelines
 
 ## License
 
