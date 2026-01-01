@@ -32,9 +32,10 @@ fn main() {
     let file_path = resolve_file_path();
 
     Application::new().run(move |app| {
-        // Global quit handler
-        app.on_action(|_: &Quit, app| {
-            app.quit();
+        // Global quit handler - force exit immediately
+        app.on_action(|_: &Quit, _app| {
+            let exit_code = if should_exit_with_error() { 1 } else { 0 };
+            std::process::exit(exit_code);
         });
 
         app.bind_keys([
@@ -105,9 +106,10 @@ fn main() {
         })
         .unwrap();
 
-        // Quit app when window is closed
-        let _ = app.on_window_closed(move |app| {
-            app.quit();
+        // Force exit when window is closed (red X button)
+        let _ = app.on_window_closed(move |_app| {
+            let exit_code = if should_exit_with_error() { 1 } else { 0 };
+            std::process::exit(exit_code);
         });
 
         app.activate(true);
