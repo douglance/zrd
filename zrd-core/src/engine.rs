@@ -93,7 +93,7 @@ impl EditorEngine {
                 self.state.font_size = (self.state.font_size - 2.0).max(8.0);
             }
             EditorAction::ResetFontSize => {
-                self.state.font_size = 48.0;
+                self.state.font_size = 14.0;
             }
             EditorAction::Cut | EditorAction::Copy | EditorAction::Paste(_) => {
                 // Clipboard operations need platform-specific handling

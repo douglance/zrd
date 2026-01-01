@@ -34,7 +34,7 @@ impl EditorState {
             lines: vec![String::new()],
             cursor: BufferPosition::zero(),
             selection_anchor: None,
-            font_size: 48.0,
+            font_size: 14.0,
         }
     }
 
@@ -64,7 +64,7 @@ impl EditorState {
             lines,
             cursor: BufferPosition::zero(),
             selection_anchor: None,
-            font_size: 48.0,
+            font_size: 14.0,
         }
     }
 

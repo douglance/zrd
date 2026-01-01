@@ -96,9 +96,12 @@ fn main() {
             ..Default::default()
         };
 
-        app.open_window(window_options, |_window, app| {
+        app.open_window(window_options, |window, app| {
             let path = file_path.clone();
-            app.new(|cx| TextEditor::new(path, cx))
+            let editor = app.new(|cx| TextEditor::new(path, cx));
+            // Focus the editor so user can start typing immediately
+            window.focus(&editor.focus_handle(app));
+            editor
         })
         .unwrap();
 

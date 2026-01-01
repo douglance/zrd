@@ -37,11 +37,12 @@ impl TextEditor {
         };
 
         let buffer = TextBuffer::from_string(engine.state().to_string());
+        let focus_handle = cx.focus_handle();
 
         Self {
             engine,
             buffer,
-            focus_handle: cx.focus_handle(),
+            focus_handle,
             theme: Theme::default(),
             is_dragging: false,
             last_click_time: None,
