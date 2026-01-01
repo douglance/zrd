@@ -34,7 +34,9 @@ fn main() {
     Application::new().run(move |app| {
         // Global quit handler - force exit immediately
         app.on_action(|_: &Quit, _app| {
+            eprintln!("[zrd-gui] Quit action triggered");
             let exit_code = if should_exit_with_error() { 1 } else { 0 };
+            eprintln!("[zrd-gui] Exiting with code {}", exit_code);
             std::process::exit(exit_code);
         });
 
@@ -102,15 +104,18 @@ fn main() {
             let editor = app.new(|cx| TextEditor::new(path, cx));
             // Focus the editor so user can start typing immediately
             window.focus(&editor.focus_handle(app));
+
+            // Handle red X button click - force exit
+            window.on_window_should_close(app, |_window, _app| {
+                eprintln!("[zrd-gui] Window should_close triggered (red X)");
+                let exit_code = if should_exit_with_error() { 1 } else { 0 };
+                eprintln!("[zrd-gui] Exiting with code {}", exit_code);
+                std::process::exit(exit_code);
+            });
+
             editor
         })
         .unwrap();
-
-        // Force exit when window is closed (red X button)
-        let _ = app.on_window_closed(move |_app| {
-            let exit_code = if should_exit_with_error() { 1 } else { 0 };
-            std::process::exit(exit_code);
-        });
 
         app.activate(true);
     });
