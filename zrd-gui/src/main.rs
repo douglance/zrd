@@ -32,7 +32,14 @@ fn main() {
     let file_path = resolve_file_path();
 
     Application::new().run(move |app| {
+        // Global quit handler
+        app.on_action(|_: &Quit, app| {
+            app.quit();
+        });
+
         app.bind_keys([
+            KeyBinding::new("cmd-q", Quit, None),
+            KeyBinding::new("escape", Quit, None),
             KeyBinding::new("cmd-=", IncreaseFontSize, None),
             KeyBinding::new("cmd--", DecreaseFontSize, None),
             KeyBinding::new("cmd-0", ResetFontSize, None),
@@ -85,6 +92,7 @@ fn main() {
                 traffic_light_position: Some(point(px(8.0), px(8.0))),
             }),
             window_background: WindowBackgroundAppearance::Blurred,
+            kind: WindowKind::PopUp,
             ..Default::default()
         };
 

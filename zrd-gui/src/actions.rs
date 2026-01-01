@@ -3,6 +3,7 @@ use gpui::actions;
 actions!(
     editor,
     [
+        Quit,
         IncreaseFontSize,
         DecreaseFontSize,
         ResetFontSize,
