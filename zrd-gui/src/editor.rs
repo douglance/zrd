@@ -17,6 +17,19 @@ pub struct TextEditor {
     file_path: std::path::PathBuf,
     last_modified: Option<std::time::SystemTime>,
     scroll_offset: f32,
+    was_modified: bool,
+}
+
+// Global flag for exit code - starts true (will exit with error unless modified)
+static EXIT_WITH_ERROR: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(true);
+
+pub fn should_exit_with_error() -> bool {
+    EXIT_WITH_ERROR.load(std::sync::atomic::Ordering::SeqCst)
+}
+
+/// Call when content is modified to clear the error flag
+pub fn mark_as_modified() {
+    EXIT_WITH_ERROR.store(false, std::sync::atomic::Ordering::SeqCst);
 }
 
 impl TextEditor {
@@ -50,6 +63,7 @@ impl TextEditor {
             file_path,
             last_modified,
             scroll_offset: 0.0,
+            was_modified: false,
         }
     }
 
@@ -65,6 +79,8 @@ impl TextEditor {
     fn sync_and_save(&mut self) {
         self.sync_buffer_from_engine();
         self.save_to_file();
+        self.was_modified = true;
+        mark_as_modified(); // Clear the exit error flag since we modified content
         // Update last modified time after save
         if let Ok(metadata) = std::fs::metadata(&self.file_path) {
             if let Ok(modified) = metadata.modified() {

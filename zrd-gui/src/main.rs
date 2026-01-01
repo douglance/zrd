@@ -4,7 +4,7 @@ mod text_buffer;
 mod theme;
 
 use actions::*;
-use editor::TextEditor;
+use editor::{should_exit_with_error, TextEditor};
 use gpui::*;
 use std::path::PathBuf;
 use zrd_core::EditorEngine;
@@ -96,7 +96,7 @@ fn main() {
             ..Default::default()
         };
 
-        app.open_window(window_options, |window, app| {
+        let _editor_handle = app.open_window(window_options, |window, app| {
             let path = file_path.clone();
             let editor = app.new(|cx| TextEditor::new(path, cx));
             // Focus the editor so user can start typing immediately
@@ -105,11 +105,16 @@ fn main() {
         })
         .unwrap();
 
-        // Quit app when any window is closed (makes it work with git, etc.)
-        let _ = app.on_window_closed(|app| {
+        // Quit app when window is closed
+        let _ = app.on_window_closed(move |app| {
             app.quit();
         });
 
         app.activate(true);
     });
+
+    // Exit with error code 1 if file wasn't modified (for git integration)
+    if should_exit_with_error() {
+        std::process::exit(1);
+    }
 }
